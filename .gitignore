@@ -1,0 +1,11 @@
+*.egg-info
+*.pyc
+*.pyo
+.installed.cfg
+bin
+coverage
+develop-eggs
+downloads
+eggs
+parts
+var
