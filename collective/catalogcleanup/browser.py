@@ -21,8 +21,8 @@ class Cleanup(BrowserView):
             self.report(catalog_id)
             self.remove_without_uids(catalog_id)
             self.remove_without_object(catalog_id)
-        if 'reference_catalog' in catalog_ids:
-            self.check_references()
+            if catalog_id == 'reference_catalog':
+                self.check_references()
         self.msg("Done with catalog cleanup.")
         return '\n'.join(self.messages)
 
