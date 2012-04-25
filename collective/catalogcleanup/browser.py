@@ -87,6 +87,9 @@ class Cleanup(BrowserView):
         for error, value in status.items():
             self.msg("Removed %d brains from %s with status %s." % (
                 value, catalog_id, error))
+        if not status:
+            self.msg("Removed no brains from %s in object check." % (
+                catalog_id))
 
     def check_references(self, catalog_id='reference_catalog'):
         """Remove all brains without proper references.
@@ -116,6 +119,9 @@ class Cleanup(BrowserView):
         for error, value in status.items():
             self.msg("Removed %d brains from %s with status %s for source or "
                      "target object." % (value, catalog_id, error))
+        if not status:
+            self.msg("Removed no brains from %s in reference check." % (
+                catalog_id))
 
     def get_object_or_status(self, brain, getter='getObject'):
         try:
