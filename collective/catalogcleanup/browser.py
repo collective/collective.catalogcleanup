@@ -69,8 +69,9 @@ class Cleanup(BrowserView):
         """
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
-        removed_error = 0
+        removed_notfound = 0
         removed_none = 0
+        removed_broken = 0
         standard_filter = {'path': '/'}
         brains = list(catalog(**standard_filter))
         for brain in brains:
@@ -80,7 +81,7 @@ class Cleanup(BrowserView):
                 raise
             except (NotFound, AttributeError):
                 catalog.uncatalog_object(brain.getPath())
-                removed_error += 1
+                removed_notfound += 1
                 continue
             except:
                 logger.exception("Cannot handle brain at %s." %
@@ -91,11 +92,15 @@ class Cleanup(BrowserView):
                 removed_none += 1
                 continue
             elif isinstance(obj, BrokenClass):
-                logger.warn("Broken: %s" % brain.getPath())
+                logger.warn("Broken %s: %s" % (
+                    brain.portal_type, brain.getPath()))
                 catalog.uncatalog_object(brain.getPath())
+                removed_broken += 1
                 continue
 
         self.msg("Removed %d brains from %s where object is not found." % (
-            removed_error, catalog_id))
+            removed_notfound, catalog_id))
         self.msg("Removed %d brains from %s where object is None." % (
             removed_none, catalog_id))
+        self.msg("Removed %d brains from %s where object is broken." % (
+            removed_broken, catalog_id))
