@@ -1,3 +1,5 @@
+from itertools import groupby
+from operator import attrgetter
 import logging
 
 from Acquisition import aq_inner
@@ -19,10 +21,13 @@ class Cleanup(BrowserView):
         for catalog_id in catalog_ids:
             self.msg("Handling catalog %s." % catalog_id)
             self.report(catalog_id)
+            """
             self.remove_without_uids(catalog_id)
             self.remove_without_object(catalog_id)
             if catalog_id == 'reference_catalog':
                 self.check_references()
+            """
+            self.non_unique_uids(catalog_id)
         self.msg("Done with catalog cleanup.")
         return '\n'.join(self.messages)
 
@@ -122,6 +127,25 @@ class Cleanup(BrowserView):
         if not status:
             self.msg("%s: removed no brains in reference check." % (
                 catalog_id))
+
+    def non_unique_uids(self, catalog_id):
+        """Report on non unique uids.
+        """
+        context = aq_inner(self.context)
+        catalog = getToolByName(context, catalog_id)
+        if 'UID' not in catalog.indexes():
+            self.msg("%s: no UID index." % catalog_id)
+            return
+        standard_filter = {'Language': 'all'}
+        brains = list(catalog(**standard_filter))
+        uid_getter = attrgetter('UID')
+        brains = sorted(brains, key=uid_getter)
+        for uid, group in groupby(brains, uid_getter):
+            items = list(group)
+            if len(items) == 1:
+                continue
+            # TODO: do something about this.
+            self.msg("%s: uid %s: %d items." % (catalog_id, uid, len(items)))
 
     def get_object_or_status(self, brain, getter='getObject'):
         try:
