@@ -129,7 +129,7 @@ class Cleanup(BrowserView):
             obj = getattr(brain, getter)()
         except (ConflictError, KeyboardInterrupt):
             raise
-        except (NotFound, AttributeError):
+        except (NotFound, AttributeError, KeyError):
             return 'notfound'
         except:
             logger.exception("Cannot handle brain at %s." %
