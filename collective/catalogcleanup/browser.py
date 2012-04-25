@@ -3,6 +3,8 @@ import logging
 from Acquisition import aq_inner
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
+from ZODB.POSException import ConflictError
+from zExceptions import NotFound
 
 logger = logging.getLogger('collective.catalogcleanup')
 
@@ -17,6 +19,7 @@ class Cleanup(BrowserView):
             self.msg("Handling catalog %s." % catalog_id)
             self.report(catalog_id)
             self.remove_without_uids(catalog_id)
+            self.remove_without_object(catalog_id)
         self.msg("Done with catalog cleanup.")
         return '\n'.join(self.messages)
 
@@ -59,3 +62,33 @@ class Cleanup(BrowserView):
             uncatalog += 1
         self.msg("Removed %d brains without UID from %s." % (
             uncatalog, catalog_id))
+
+    def remove_without_object(self, catalog_id):
+        """Remove all brains without object.
+        """
+        context = aq_inner(self.context)
+        catalog = getToolByName(context, catalog_id)
+        removed_error = 0
+        removed_none = 0
+        standard_filter = {'path': '/'}
+        brains = list(catalog(**standard_filter))
+        for brain in brains:
+            try:
+                obj = brain.getObject()
+            except (ConflictError, KeyboardInterrupt):
+                raise
+            except NotFound:
+                catalog.uncatalog_object(brain.getPath())
+                removed_error += 1
+            except:
+                logger.exception("Cannot handle brain at %s." %
+                                 brain.getPath())
+                raise
+            if obj is None:
+                catalog.uncatalog_object(brain.getPath())
+                removed_none += 1
+
+        self.msg("Removed %d brains from %s where object is not found." % (
+            removed_error, catalog_id))
+        self.msg("Removed %d brains from %s where object is None." % (
+            removed_none, catalog_id))
