@@ -26,16 +26,14 @@ class Cleanup(BrowserView):
         uncatalog = 0
         # Remove all brains without UID.
         for catalog in pc, uid_cat:
-            # For some reason we need several tries, because not all
-            # are removed the first time around.
-            tries = 0
             uid_filter = {'UID': None}
-            while len(catalog(**uid_filter)) > 0:
-                tries += 1
-                self.msg("Try %d, total uncatalogs: %d" % (tries, uncatalog))
-                for brain in catalog(**uid_filter):
-                    catalog.uncatalog_object(brain.getPath())
-                    uncatalog += 1
+            # We need to get the complete list instead of a lazy
+            # mapping, otherwise iterating misses half of the brains
+            # and we would need to try it again.
+            brains = list(catalog(**uid_filter))
+            for brain in brains:
+                catalog.uncatalog_object(brain.getPath())
+                uncatalog += 1
         self.msg("Removed %d catalog brains without UID." % uncatalog)
         return '\n'.join(self.messages)
 
