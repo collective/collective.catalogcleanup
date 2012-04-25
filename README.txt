@@ -16,17 +16,11 @@ This goes through the portal_catalog and removes all catalog brains
 for which a ``getObject`` call does not work.  In other words, it
 removes brains that no longer belong to an actual object in the site.
 
+Similar cleanups are done for the uid_catalog and the
+reference_catalog.
+
 The goal is to get rid of outdated brains that could otherwise cause
 problems, for example during an upgrade to Plone 4.
-
-
-Notes
------
-
-- No code has been written yet. :-)
-
-- We may want to do similar cleanups for the uid_catalog and maybe the
-  reference_catalog.
 
 
 Alternatives
