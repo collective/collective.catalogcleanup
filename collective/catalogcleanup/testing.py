@@ -1,6 +1,7 @@
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PloneSandboxLayer
+from zope.component import getMultiAdapter
 from zope.configuration import xmlconfig
 
 
@@ -27,3 +28,9 @@ def make_test_doc(portal):
     doc = portal[new_id]
     doc.reindexObject()  # Might have already happened, but let's be sure.
     return doc
+
+
+def cleanup(portal):
+    view = getMultiAdapter((portal, portal.REQUEST),
+                            name='collective-catalogcleanup')
+    return view()

@@ -30,7 +30,8 @@ setup(name='collective.catalogcleanup',
           # -*- Extra requirements: -*-
       ],
       extras_require={
-          'test': ['plone.app.testing'],
+          'test': ['plone.app.testing',
+                   'collective.noindexing',],
       },
       entry_points="""
       # -*- Entry points: -*-
