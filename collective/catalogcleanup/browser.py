@@ -1,6 +1,7 @@
 import logging
 
 from Acquisition import aq_inner
+from OFS.Uninstalled import BrokenClass
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from ZODB.POSException import ConflictError
@@ -77,9 +78,10 @@ class Cleanup(BrowserView):
                 obj = brain.getObject()
             except (ConflictError, KeyboardInterrupt):
                 raise
-            except NotFound:
+            except (NotFound, AttributeError):
                 catalog.uncatalog_object(brain.getPath())
                 removed_error += 1
+                continue
             except:
                 logger.exception("Cannot handle brain at %s." %
                                  brain.getPath())
@@ -87,6 +89,11 @@ class Cleanup(BrowserView):
             if obj is None:
                 catalog.uncatalog_object(brain.getPath())
                 removed_none += 1
+                continue
+            elif isinstance(obj, BrokenClass):
+                logger.warn("Broken: %s" % brain.getPath())
+                catalog.uncatalog_object(brain.getPath())
+                continue
 
         self.msg("Removed %d brains from %s where object is not found." % (
             removed_error, catalog_id))
