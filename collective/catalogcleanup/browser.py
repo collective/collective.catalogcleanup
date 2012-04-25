@@ -113,8 +113,8 @@ class Cleanup(BrowserView):
                 break
 
         for error, value in status.items():
-            self.msg("Removed %d brains from %s with status %s." % (
-                value, catalog_id, error))
+            self.msg("Removed %d brains from %s with status %s for source or "
+                     "target object." % (value, catalog_id, error))
 
     def get_object_or_status(self, brain, getter='getObject'):
         try:
