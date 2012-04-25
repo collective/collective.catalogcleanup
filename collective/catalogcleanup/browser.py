@@ -64,8 +64,8 @@ class Cleanup(BrowserView):
         for brain in brains:
             catalog.uncatalog_object(brain.getPath())
             uncatalog += 1
-        self.msg("Removed %d brains without UID from %s." % (
-            uncatalog, catalog_id))
+        self.msg("%s: removed %d brains without UID." % (
+            catalog_id, uncatalog))
 
     def remove_without_object(self, catalog_id):
         """Remove all brains without object.
@@ -85,10 +85,10 @@ class Cleanup(BrowserView):
             catalog.uncatalog_object(brain.getPath())
 
         for error, value in status.items():
-            self.msg("Removed %d brains from %s with status %s." % (
-                value, catalog_id, error))
+            self.msg("%s: removed %d brains with status %s." % (
+                catalog_id, value, error))
         if not status:
-            self.msg("Removed no brains from %s in object check." % (
+            self.msg("%s: removed no brains in object check." % (
                 catalog_id))
 
     def check_references(self, catalog_id='reference_catalog'):
@@ -117,10 +117,10 @@ class Cleanup(BrowserView):
                 break
 
         for error, value in status.items():
-            self.msg("Removed %d brains from %s with status %s for source or "
-                     "target object." % (value, catalog_id, error))
+            self.msg("%s: removed %d brains with status %s for source or "
+                     "target object." % (catalog_id, value, error))
         if not status:
-            self.msg("Removed no brains from %s in reference check." % (
+            self.msg("%s: removed no brains in reference check." % (
                 catalog_id))
 
     def get_object_or_status(self, brain, getter='getObject'):
