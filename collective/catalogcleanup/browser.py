@@ -21,12 +21,10 @@ class Cleanup(BrowserView):
         for catalog_id in catalog_ids:
             self.msg("Handling catalog %s." % catalog_id)
             self.report(catalog_id)
-            """
             self.remove_without_uids(catalog_id)
             self.remove_without_object(catalog_id)
             if catalog_id == 'reference_catalog':
                 self.check_references()
-            """
             self.non_unique_uids(catalog_id)
         self.msg("Done with catalog cleanup.")
         return '\n'.join(self.messages)
