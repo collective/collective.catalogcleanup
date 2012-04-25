@@ -38,10 +38,11 @@ class Cleanup(BrowserView):
         size = len(catalog)
         self.msg("Brains in %s: %d" % (catalog_id, size))
         # Getting all brains from the catalog may give a different
-        # result for some reason.  Using an empty filter to query
-        # the catalog will give a DeprecationWarning and may not
-        # work on Zope 2.14 anymore.  We try to avoid this.
-        standard_filter = {'path': '/'}
+        # result for some reason.  Using an empty filter to query the
+        # catalog will give a DeprecationWarning and may not work on
+        # Zope 2.14 anymore.  We try to avoid this.  Also, we want
+        # brains in all languages in case of LinguaPlone.
+        standard_filter = {'Language': 'all'}
         # Actually, the uid_catalog usually has no path index, so
         # we get the DeprecationWarning anyway.  So be it.
         alternative_size = len(catalog(**standard_filter))
@@ -55,7 +56,7 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         uncatalog = 0
-        uid_filter = {'UID': None}
+        uid_filter = {'UID': None, 'Language': 'all'}
         # We need to get the complete list instead of a lazy
         # mapping, otherwise iterating misses half of the brains
         # and we would need to try again.
@@ -72,7 +73,7 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         status = {}
-        standard_filter = {'path': '/'}
+        standard_filter = {'Language': 'all'}
         brains = list(catalog(**standard_filter))
         for brain in brains:
             obj = self.get_object_or_status(brain)
@@ -93,7 +94,7 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         status = {}
-        standard_filter = {'path': '/'}
+        standard_filter = {'Language': 'all'}
         brains = list(catalog(**standard_filter))
         getters = ('getSourceObject', 'getTargetObject')
         for brain in brains:
