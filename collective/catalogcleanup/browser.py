@@ -15,6 +15,8 @@ class Cleanup(BrowserView):
         pc = getToolByName(context, 'portal_catalog')
         uid_cat = getToolByName(context, 'uid_catalog')
         self.msg("Starting catalog cleanup.")
+        self.msg("portal_catalog brains: %d" % len(pc))
+        self.msg("uid_catalog brains: %d" % len(uid_cat))
         # Using an empty filter to query the catalog will give a
         # DeprecationWarning and may not work on Zope 2.14 anymore.
         # We try to avoid this.
@@ -24,6 +26,7 @@ class Cleanup(BrowserView):
         # get the DeprecationWarning anyway.  So be it.
         self.msg("uid_catalog brains: %d" % len(uid_cat(**standard_filter)))
         uncatalog = 0
+
         # Remove all brains without UID.
         for catalog in pc, uid_cat:
             uid_filter = {'UID': None}
@@ -35,6 +38,7 @@ class Cleanup(BrowserView):
                 catalog.uncatalog_object(brain.getPath())
                 uncatalog += 1
         self.msg("Removed %d catalog brains without UID." % uncatalog)
+
         return '\n'.join(self.messages)
 
     def msg(self, msg, level=logging.INFO):
