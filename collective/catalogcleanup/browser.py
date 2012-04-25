@@ -69,38 +69,37 @@ class Cleanup(BrowserView):
         """
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
-        removed_notfound = 0
-        removed_none = 0
-        removed_broken = 0
+        status = {}
         standard_filter = {'path': '/'}
         brains = list(catalog(**standard_filter))
         for brain in brains:
-            try:
-                obj = brain.getObject()
-            except (ConflictError, KeyboardInterrupt):
-                raise
-            except (NotFound, AttributeError):
-                catalog.uncatalog_object(brain.getPath())
-                removed_notfound += 1
+            obj = self.get_object_or_status(brain)
+            if not isinstance(obj, basestring):
                 continue
-            except:
-                logger.exception("Cannot handle brain at %s." %
-                                 brain.getPath())
-                raise
-            if obj is None:
-                catalog.uncatalog_object(brain.getPath())
-                removed_none += 1
-                continue
-            elif isinstance(obj, BrokenClass):
-                logger.warn("Broken %s: %s" % (
-                    brain.portal_type, brain.getPath()))
-                catalog.uncatalog_object(brain.getPath())
-                removed_broken += 1
-                continue
+            # We have an error.
+            count = status.get(obj, 0)
+            status[obj] = count + 1
+            catalog.uncatalog_object(brain.getPath())
 
-        self.msg("Removed %d brains from %s where object is not found." % (
-            removed_notfound, catalog_id))
-        self.msg("Removed %d brains from %s where object is None." % (
-            removed_none, catalog_id))
-        self.msg("Removed %d brains from %s where object is broken." % (
-            removed_broken, catalog_id))
+        for error, value in status.items():
+            self.msg("Removed %d brains from %s with status %s." % (
+                value, catalog_id, error))
+
+    def get_object_or_status(self, brain):
+        try:
+            obj = brain.getObject()
+        except (ConflictError, KeyboardInterrupt):
+            raise
+        except (NotFound, AttributeError):
+            return 'notfound'
+        except:
+            logger.exception("Cannot handle brain at %s." %
+                             brain.getPath())
+            raise
+        if obj is None:
+            return 'none'
+        if isinstance(obj, BrokenClass):
+            logger.warn("Broken %s: %s" % (
+                brain.portal_type, brain.getPath()))
+            return 'broken'
+        return obj
