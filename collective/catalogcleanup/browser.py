@@ -45,14 +45,16 @@ class Cleanup(BrowserView):
             self.newline()
         catalog_ids = ['portal_catalog', 'uid_catalog', 'reference_catalog']
         for catalog_id in catalog_ids:
+            problems = 0
             self.newline()
             self.msg("Handling catalog %s.", catalog_id)
-            self.report(catalog_id)
-            self.remove_without_uids(catalog_id)
-            self.remove_without_object(catalog_id)
+            problems += self.report(catalog_id)
+            problems += self.remove_without_uids(catalog_id)
+            problems += self.remove_without_object(catalog_id)
             if catalog_id == 'reference_catalog':
-                self.check_references()
-            self.non_unique_uids(catalog_id)
+                problems += self.check_references()
+            problems += self.non_unique_uids(catalog_id)
+            self.msg("%s: total problems: %d", catalog_id, problems)
 
         self.newline()
         self.msg("Done with catalog cleanup.")
@@ -86,6 +88,8 @@ class Cleanup(BrowserView):
         if alternative_size != size:
             self.msg("Brains in %s using standard filter is different: %d",
                      catalog_id, alternative_size, level=logging.WARN)
+            return 1
+        return 0
 
     def remove_without_uids(self, catalog_id):
         """Remove all brains without UID.
@@ -104,6 +108,7 @@ class Cleanup(BrowserView):
             uncatalog += 1
         self.msg("%s: removed %d brains without UID.",
             catalog_id, uncatalog)
+        return uncatalog
 
     def remove_without_object(self, catalog_id):
         """Remove all brains without object.
@@ -128,6 +133,7 @@ class Cleanup(BrowserView):
                      value, error)
         if not status:
             self.msg("%s: removed no brains in object check.", catalog_id)
+        return sum(status.values())
 
     def check_references(self, catalog_id='reference_catalog'):
         """Remove all brains without proper references.
@@ -168,6 +174,7 @@ class Cleanup(BrowserView):
                      "target object.", catalog_id, value, error)
         if not status:
             self.msg("%s: removed no brains in reference check.", catalog_id)
+        return sum(status.values()) + ref_errors
 
     def non_unique_uids(self, catalog_id):
         """Report and fix non unique uids.
@@ -232,6 +239,7 @@ class Cleanup(BrowserView):
                      obj_errors)
         self.msg("%s: %d non unique uids found.", catalog_id, non_unique)
         self.msg("%s: %d items given new unique uids.", catalog_id, changed)
+        return obj_errors + changed
 
     def get_object_or_status(self, brain, getter='getObject'):
         try:
