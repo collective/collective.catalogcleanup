@@ -2,8 +2,9 @@ from itertools import groupby
 from operator import attrgetter
 import logging
 
-from Acquisition import aq_inner
+from Acquisition import aq_inner, aq_base
 from OFS.Uninstalled import BrokenClass
+from Products.Archetypes.config import UUID_ATTR
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from ZODB.POSException import ConflictError
@@ -127,13 +128,21 @@ class Cleanup(BrowserView):
                 catalog_id))
 
     def non_unique_uids(self, catalog_id):
-        """Report on non unique uids.
+        """Report and fix non unique uids.
+
+        A UID that is not unique is wrong.  And the UUIDIndex
+        migration that is done when migrating from Plone 3 to Plone 4
+        breaks in that case.  A UID might be inherited from a parent
+        object; in that case the migration will not break, so we won't
+        try to fix it.
         """
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         if 'UID' not in catalog.indexes():
             self.msg("%s: no UID index." % catalog_id)
             return
+        non_unique = 0
+        changed = 0
         standard_filter = {'Language': 'all'}
         brains = list(catalog(**standard_filter))
         uid_getter = attrgetter('UID')
@@ -142,8 +151,34 @@ class Cleanup(BrowserView):
             items = list(group)
             if len(items) == 1:
                 continue
-            # TODO: do something about this.
-            self.msg("%s: uid %s: %d items." % (catalog_id, uid, len(items)))
+            non_unique += 1
+            logger.info("%s: uid %s: %d items.", catalog_id, uid, len(items))
+            logger.info("%s: uid %s is kept for %s", catalog_id, uid,
+                        items[0].getPath())
+            # XXX Sort by lenghth of path
+            for item in items[1:]:
+                obj = item.getObject()
+                old_uid = getattr(aq_base(obj), UUID_ATTR, None)
+                if old_uid is None:
+                    # Comments inherit the UID of their parent, at
+                    # least in Plone 3.  This should be fine.
+                    logger.info("%s: uid %s is inherited by %s.",
+                        catalog_id, old_uid, item.getPath())
+                    continue
+                # Taken from Archetypes.  Might not work for
+                # dexterity.  Might not be needed for dexterity.
+                # Should not be needed for Archetypes either, really.
+                delattr(aq_base(obj), UUID_ATTR)
+                # Create a new UID.
+                obj._register()
+                obj._updateCatalog(context)
+                logger.info("%s: new uid %s for %s (was %s)." % (
+                    catalog_id, obj.UID(), item.getPath(), old_uid))
+                changed += 1
+
+        self.msg("%s: %d non unique uids found." % (catalog_id, non_unique))
+        self.msg("%s: %d items given new unique uids." % (
+            catalog_id, changed))
 
     def get_object_or_status(self, brain, getter='getObject'):
         try:
