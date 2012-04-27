@@ -71,5 +71,5 @@ class TestCatalogCleanup(unittest.TestCase):
         # it is removed:
         self._delete_object_only(doc)
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
-        cleanup(portal, dry_run=False)  # alternative: 'false'
+        cleanup(portal, dry_run='false')
         self.assertEqual(len(catalog.searchResults({})), base_count)

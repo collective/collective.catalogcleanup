@@ -28,10 +28,10 @@ class Cleanup(BrowserView):
         # values are considered True.
         if dry_run is None:
             dry_run = self.request.get('dry_run')
-            if isinstance(dry_run, basestring):
-                dry_run = dry_run.lower()
-                if dry_run == 'false':
-                    dry_run = False
+        if isinstance(dry_run, basestring):
+            dry_run = dry_run.lower()
+            if dry_run == 'false':
+                dry_run = False
         if dry_run is False:
             self.dry_run = False
             self.newline()
