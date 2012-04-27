@@ -81,6 +81,17 @@ Alternatives
   ``collective.catalogcleanup`` a go.
 
 
+Compatibility
+-------------
+
+I have tried this on Plone 3.3 and 4.1.  It will likely work on other
+versions as well.
+
+I have not tried it with Dexterity items.  It might not be needed for
+those.  Likely, it will either succeed normally or you get an
+AttributeError somewhere and the cleanup run is aborted.
+
+
 Authors
 -------
 
