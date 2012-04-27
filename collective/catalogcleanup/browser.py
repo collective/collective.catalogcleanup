@@ -13,6 +13,10 @@ from zExceptions import NotFound
 logger = logging.getLogger('collective.catalogcleanup')
 
 
+def path_len(item):
+    len(item.getPath())
+
+
 class Cleanup(BrowserView):
 
     def __call__(self):
@@ -155,7 +159,8 @@ class Cleanup(BrowserView):
             logger.info("%s: uid %s: %d items.", catalog_id, uid, len(items))
             logger.info("%s: uid %s is kept for %s", catalog_id, uid,
                         items[0].getPath())
-            # XXX Sort by lenghth of path
+            # Sort by length of path.
+            items = sorted(items, key=path_len)
             for item in items[1:]:
                 obj = item.getObject()
                 old_uid = getattr(aq_base(obj), UUID_ATTR, None)
