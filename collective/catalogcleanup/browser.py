@@ -2,9 +2,10 @@ from itertools import groupby
 from operator import attrgetter
 import logging
 
-from Acquisition import aq_inner, aq_base
+from Acquisition import aq_inner, aq_base, aq_parent
 from OFS.Uninstalled import BrokenClass
 from Products.Archetypes.config import UUID_ATTR
+from Products.Archetypes.ReferenceEngine import Reference
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from ZODB.POSException import ConflictError
@@ -227,7 +228,16 @@ class Cleanup(BrowserView):
                 if not self.dry_run:
                     delattr(aq_base(obj), UUID_ATTR)
                     # Create a new UID.
-                    obj._register()
+                    try:
+                        obj._register()
+                    except AttributeError:
+                        # Might happen for a Reference.
+                        if isinstance(obj, Reference):
+                            logger.warn("%s: removing reference %s with "
+                                        "duplicate uid %s.", catalog_id,
+                                        item.getPath(), old_uid)
+                            del aq_parent(obj)[obj.getId()]
+                            continue
                     obj._updateCatalog(context)
                     obj.reindexObject()  # especially the UID index
                 logger.info("%s: new uid %s for %s (was %s)." % (
