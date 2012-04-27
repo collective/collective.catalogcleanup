@@ -30,7 +30,7 @@ def make_test_doc(portal):
     return doc
 
 
-def cleanup(portal):
+def cleanup(portal, **kwargs):
     view = getMultiAdapter((portal, portal.REQUEST),
                             name='collective-catalogcleanup')
-    return view()
+    return view(**kwargs)
