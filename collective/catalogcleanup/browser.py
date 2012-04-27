@@ -34,13 +34,18 @@ class Cleanup(BrowserView):
                     dry_run = False
         if dry_run is False:
             self.dry_run = False
+            self.newline()
             self.msg("NO dry_run SELECTED. CHANGES ARE PERMANENT.")
+            self.newline()
         else:
             self.dry_run = True
-            self.msg("dry_run selected, so only reporting. To make changes "
+            self.newline()
+            self.msg("dry_run SELECTED, SO ONLY REPORTING. To make changes "
                      "permanent, add '?dry_run=false' to the URL.")
+            self.newline()
         catalog_ids = ['portal_catalog', 'uid_catalog', 'reference_catalog']
         for catalog_id in catalog_ids:
+            self.newline()
             self.msg("Handling catalog %s.", catalog_id)
             self.report(catalog_id)
             self.remove_without_uids(catalog_id)
@@ -56,6 +61,9 @@ class Cleanup(BrowserView):
         level = kwargs.get('level', logging.INFO)
         logger.log(level, msg)
         self.messages.append(msg)
+
+    def newline(self):
+        self.messages.append('')
 
     def report(self, catalog_id):
         """Report about this catalog.
