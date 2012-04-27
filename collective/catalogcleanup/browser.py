@@ -53,6 +53,8 @@ class Cleanup(BrowserView):
             if catalog_id == 'reference_catalog':
                 self.check_references()
             self.non_unique_uids(catalog_id)
+
+        self.newline()
         self.msg("Done with catalog cleanup.")
         return '\n'.join(self.messages)
 
