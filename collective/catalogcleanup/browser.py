@@ -125,13 +125,18 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         status = {}
+        ref_errors = 0
         standard_filter = {'Language': 'all'}
         brains = list(catalog(**standard_filter))
         getters = ('getSourceObject', 'getTargetObject')
         for brain in brains:
-            # This should always work, as cleanup should already have
-            # been done:
-            ref = brain.getObject()
+            ref = self.get_object_or_status(brain)
+            if isinstance(ref, basestring):
+                # We have an error. This means a dry_run is being
+                # done, as otherwise this brain should have been
+                # cleaned up by one of the other methods already.
+                ref_errors += 1
+                continue
             for getter in getters:
                 obj = self.get_object_or_status(ref, getter)
                 if not isinstance(obj, basestring):
@@ -145,6 +150,9 @@ class Cleanup(BrowserView):
                 # fails.
                 break
 
+        if ref_errors:
+            self.msg("%s: problem getting %d references.", catalog_id,
+                     ref_errors)
         for error, value in status.items():
             self.msg("%s: removed %d brains with status %s for source or "
                      "target object.", catalog_id, value, error)
@@ -167,6 +175,7 @@ class Cleanup(BrowserView):
             return
         non_unique = 0
         changed = 0
+        obj_errors = 0
         standard_filter = {'Language': 'all'}
         brains = list(catalog(**standard_filter))
         uid_getter = attrgetter('UID')
@@ -182,7 +191,12 @@ class Cleanup(BrowserView):
             # Sort by length of path.
             items = sorted(items, key=path_len)
             for item in items[1:]:
-                obj = item.getObject()
+                obj = self.get_object_or_status(item)
+                if isinstance(obj, basestring):
+                    # This is an error. This should fix itself when no
+                    # dry_run has been selected.
+                    obj_errors += 1
+                    continue
                 old_uid = getattr(aq_base(obj), UUID_ATTR, None)
                 if old_uid is None:
                     # Comments inherit the UID of their parent, at
@@ -203,10 +217,18 @@ class Cleanup(BrowserView):
                     catalog_id, obj.UID(), item.getPath(), old_uid))
                 changed += 1
 
+        if obj_errors:
+            self.msg("%s: problem getting %d objects.", catalog_id,
+                     obj_errors)
         self.msg("%s: %d non unique uids found.", catalog_id, non_unique)
         self.msg("%s: %d items given new unique uids.", catalog_id, changed)
 
     def get_object_or_status(self, brain, getter='getObject'):
+        try:
+            brain_id = brain.getPath()
+        except AttributeError:
+            # Probably not a real brain, but a reference.
+            brain_id = brain.getId()
         try:
             # Usually: brain.getObject()
             obj = getattr(brain, getter)()
@@ -215,13 +237,11 @@ class Cleanup(BrowserView):
         except (NotFound, AttributeError, KeyError):
             return 'notfound'
         except:
-            logger.exception("Cannot handle brain at %s." %
-                             brain.getPath())
+            logger.exception("Cannot handle brain at %s.", brain_id)
             raise
         if obj is None:
             return 'none'
         if isinstance(obj, BrokenClass):
-            logger.warn("Broken %s: %s" % (
-                brain.portal_type, brain.getPath()))
+            logger.warn("Broken %s: %s", brain.portal_type, brain_id)
             return 'broken'
         return obj
