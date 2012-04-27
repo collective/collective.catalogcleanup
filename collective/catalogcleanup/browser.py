@@ -19,9 +19,26 @@ def path_len(item):
 
 class Cleanup(BrowserView):
 
-    def __call__(self):
+    def __call__(self, dry_run=None):
         self.messages = []
         self.msg("Starting catalog cleanup.")
+        # Determine whether this is a dry run or not.  We are very
+        # explicit and only accept the boolean value False and the
+        # string 'false' (in lower, upper or mixed case).  All other
+        # values are considered True.
+        if dry_run is None:
+            dry_run = self.request.get('dry_run')
+            if isinstance(dry_run, basestring):
+                dry_run = dry_run.lower()
+                if dry_run == 'false':
+                    dry_run = False
+        if dry_run is False:
+            self.dry_run = False
+            self.msg("NO dry_run SELECTED. CHANGES ARE PERMANENT.")
+        else:
+            self.dry_run = True
+            self.msg("dry_run selected, so only reporting. To make changes "
+                     "permanent, add '?dry_run=false' to the URL.")
         catalog_ids = ['portal_catalog', 'uid_catalog', 'reference_catalog']
         for catalog_id in catalog_ids:
             self.msg("Handling catalog %s.", catalog_id)
@@ -72,7 +89,8 @@ class Cleanup(BrowserView):
         # and we would need to try again.
         brains = list(catalog(**uid_filter))
         for brain in brains:
-            catalog.uncatalog_object(brain.getPath())
+            if not self.dry_run:
+                catalog.uncatalog_object(brain.getPath())
             uncatalog += 1
         self.msg("%s: removed %d brains without UID.",
             catalog_id, uncatalog)
@@ -92,7 +110,8 @@ class Cleanup(BrowserView):
             # We have an error.
             count = status.get(obj, 0)
             status[obj] = count + 1
-            catalog.uncatalog_object(brain.getPath())
+            if not self.dry_run:
+                catalog.uncatalog_object(brain.getPath())
 
         for error, value in status.items():
             self.msg("%s: removed %d brains with status %s.", catalog_id,
@@ -120,7 +139,8 @@ class Cleanup(BrowserView):
                 # We have an error.  Remove the reference brain.
                 count = status.get(obj, 0)
                 status[obj] = count + 1
-                catalog.uncatalog_object(brain.getPath())
+                if not self.dry_run:
+                    catalog.uncatalog_object(brain.getPath())
                 # No need for the second getter if the first already
                 # fails.
                 break
@@ -173,11 +193,12 @@ class Cleanup(BrowserView):
                 # Taken from Archetypes.  Might not work for
                 # dexterity.  Might not be needed for dexterity.
                 # Should not be needed for Archetypes either, really.
-                delattr(aq_base(obj), UUID_ATTR)
-                # Create a new UID.
-                obj._register()
-                obj._updateCatalog(context)
-                obj.reindexObject()  # especially the UID index
+                if not self.dry_run:
+                    delattr(aq_base(obj), UUID_ATTR)
+                    # Create a new UID.
+                    obj._register()
+                    obj._updateCatalog(context)
+                    obj.reindexObject()  # especially the UID index
                 logger.info("%s: new uid %s for %s (was %s)." % (
                     catalog_id, obj.UID(), item.getPath(), old_uid))
                 changed += 1
