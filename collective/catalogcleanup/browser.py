@@ -172,6 +172,7 @@ class Cleanup(BrowserView):
                 # Create a new UID.
                 obj._register()
                 obj._updateCatalog(context)
+                obj.reindexObject()  # especially the UID index
                 logger.info("%s: new uid %s for %s (was %s)." % (
                     catalog_id, obj.UID(), item.getPath(), old_uid))
                 changed += 1
