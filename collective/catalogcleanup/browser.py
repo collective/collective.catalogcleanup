@@ -239,7 +239,7 @@ class Cleanup(BrowserView):
                             del aq_parent(obj)[obj.getId()]
                             continue
                     obj._updateCatalog(context)
-                    obj.reindexObject()  # especially the UID index
+                    obj.reindexObject(idxs=['UID'])
                 logger.info("%s: new uid %s for %s (was %s)." % (
                     catalog_id, obj.UID(), item.getPath(), old_uid))
                 changed += 1
