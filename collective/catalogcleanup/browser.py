@@ -219,9 +219,21 @@ class Cleanup(BrowserView):
                 if old_uid is None:
                     # Comments inherit the UID of their parent, at
                     # least in Plone 3.  This should be fine.
-                    logger.info("%s: uid %s is inherited by %s.",
-                        catalog_id, old_uid, item.getPath())
+                    # But a reindex is good, as we may have given the
+                    # parent a fresh UID a moment ago.
+                    if not self.dry_run:
+                        obj.reindexObject(idxs=['UID'])
+                        new_uid = obj.UID()
+                        if new_uid != old_uid:
+                            logger.info("%s: new uid %s for %s by acquisition "
+                                        "(was %s)." % (catalog_id, new_uid,
+                                        item.getPath(), old_uid))
+                        else:
+                            logger.info("%s: uid %s is inherited by %s.",
+                                        catalog_id, old_uid, item.getPath())
                     continue
+                # We need a change.
+                changed += 1
                 # Taken from Archetypes.  Might not work for
                 # dexterity.  Might not be needed for dexterity.
                 # Should not be needed for Archetypes either, really.
