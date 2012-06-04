@@ -252,15 +252,18 @@ class Cleanup(BrowserView):
                             continue
                     obj._updateCatalog(context)
                     obj.reindexObject(idxs=['UID'])
-                logger.info("%s: new uid %s for %s (was %s)." % (
-                    catalog_id, obj.UID(), item.getPath(), old_uid))
-                changed += 1
+                    logger.info("%s: new uid %s for %s (was %s)." % (
+                        catalog_id, obj.UID(), item.getPath(), old_uid))
 
         if obj_errors:
             self.msg("%s: problem getting %d objects.", catalog_id,
                      obj_errors)
         self.msg("%s: %d non unique uids found.", catalog_id, non_unique)
-        self.msg("%s: %d items given new unique uids.", catalog_id, changed)
+        if self.dry_run:
+            self.msg("%s: %d items need new unique uids.", catalog_id, changed)
+        else:
+            self.msg("%s: %d items given new unique uids.", catalog_id,
+                     changed)
         return obj_errors + changed
 
     def get_object_or_status(self, brain, getter='getObject'):
