@@ -15,7 +15,7 @@ logger = logging.getLogger('collective.catalogcleanup')
 
 
 def path_len(item):
-    len(item.getPath())
+    return len(item.getPath())
 
 
 class Cleanup(BrowserView):
@@ -204,10 +204,10 @@ class Cleanup(BrowserView):
                 continue
             non_unique += 1
             logger.info("%s: uid %s: %d items.", catalog_id, uid, len(items))
-            logger.info("%s: uid %s is kept for %s", catalog_id, uid,
-                        items[0].getPath())
             # Sort by length of path.
             items = sorted(items, key=path_len)
+            logger.info("%s: uid %s is kept for %s", catalog_id, uid,
+                        items[0].getPath())
             for item in items[1:]:
                 obj = self.get_object_or_status(item)
                 if isinstance(obj, basestring):
