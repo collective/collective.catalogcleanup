@@ -5,7 +5,9 @@ Changelog
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Give less confusing message for comments that inherit the UID of
+  their parent.  It sounded too much like an error.
+  [maurits]
 
 
 1.2 (2012-06-04)

@@ -224,13 +224,8 @@ class Cleanup(BrowserView):
                     if not self.dry_run:
                         obj.reindexObject(idxs=['UID'])
                         new_uid = obj.UID()
-                        if new_uid != old_uid:
-                            logger.info("%s: new uid %s for %s by acquisition "
-                                        "(was %s)." % (catalog_id, new_uid,
-                                        item.getPath(), old_uid))
-                        else:
-                            logger.info("%s: uid %s is inherited by %s.",
-                                        catalog_id, old_uid, item.getPath())
+                        logger.info("%s: uid %s is inherited by %s.",
+                                    catalog_id, new_uid, item.getPath())
                     continue
                 # We need a change.
                 changed += 1
