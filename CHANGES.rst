@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.3 (unreleased)
+1.3 (2013-09-02)
 ----------------
 
 - Give less confusing message for comments that inherit the UID of
