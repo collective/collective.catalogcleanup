@@ -264,6 +264,8 @@ class Cleanup(BrowserView):
     def get_object_or_status(self, brain, getter='getObject'):
         try:
             brain_id = brain.getPath()
+        except KeyError:
+            return 'notfound'
         except AttributeError:
             # Probably not a real brain, but a reference.
             brain_id = brain.getId()
