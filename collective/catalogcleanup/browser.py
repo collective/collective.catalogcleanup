@@ -105,7 +105,11 @@ class Cleanup(BrowserView):
         brains = list(catalog(**uid_filter))
         for brain in brains:
             if not self.dry_run:
-                catalog.uncatalog_object(brain.getPath())
+                try:
+                    path = brain.getPath()
+                except KeyError:
+                    continue
+                catalog.uncatalog_object(path)
             uncatalog += 1
         self.msg("%s: removed %d brains without UID.",
             catalog_id, uncatalog)
@@ -123,11 +127,15 @@ class Cleanup(BrowserView):
             obj = self.get_object_or_status(brain)
             if not isinstance(obj, basestring):
                 continue
+            if not self.dry_run:
+                try:
+                    path = brain.getPath()
+                except KeyError:
+                    continue
+                catalog.uncatalog_object(path)
             # We have an error.
             count = status.get(obj, 0)
             status[obj] = count + 1
-            if not self.dry_run:
-                catalog.uncatalog_object(brain.getPath())
 
         for error, value in status.items():
             self.msg("%s: removed %d brains with status %s.", catalog_id,
@@ -162,7 +170,11 @@ class Cleanup(BrowserView):
                 count = status.get(obj, 0)
                 status[obj] = count + 1
                 if not self.dry_run:
-                    catalog.uncatalog_object(brain.getPath())
+                    try:
+                        path = brain.getPath()
+                    except KeyError:
+                        continue
+                    catalog.uncatalog_object(path)
                 # No need for the second getter if the first already
                 # fails.
                 break
@@ -264,6 +276,8 @@ class Cleanup(BrowserView):
     def get_object_or_status(self, brain, getter='getObject'):
         try:
             brain_id = brain.getPath()
+        except KeyError:
+            return 'notfound'
         except AttributeError:
             # Probably not a real brain, but a reference.
             brain_id = brain.getId()

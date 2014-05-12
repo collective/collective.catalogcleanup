@@ -5,7 +5,8 @@ Changelog
 1.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Catch KeyErrors when getting the path of a brain.
+  [maurits]
 
 
 1.3 (2013-09-02)
