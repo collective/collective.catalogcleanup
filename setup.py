@@ -5,18 +5,18 @@ version = '1.5.dev0'
 setup(name='collective.catalogcleanup',
       version=version,
       description="Remove outdated items from the catalog",
-      long_description=open("README.rst").read() + "\n" +
-                       open("CHANGES.rst").read(),
+      long_description=(open("README.rst").read() + "\n" +
+                        open("CHANGES.rst").read()),
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
-        "Framework :: Plone",
-        "Framework :: Plone :: 3.3",
-        "Framework :: Plone :: 4.0",
-        "Framework :: Plone :: 4.1",
-        "Programming Language :: Python",
-        ],
-      keywords='',
+          "Framework :: Plone",
+          "Framework :: Plone :: 3.3",
+          "Framework :: Plone :: 4.0",
+          "Framework :: Plone :: 4.1",
+          "Programming Language :: Python",
+          ],
+      keywords='plone catalog cleanup',
       author='Maurits van Rees',
       author_email='m.van.rees@zestsoftware.nl',
       url='https://github.com/collective/collective.catalogcleanup',
@@ -27,11 +27,11 @@ setup(name='collective.catalogcleanup',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          # -*- Extra requirements: -*-
       ],
       extras_require={
           'test': ['plone.app.testing',
-                   'collective.noindexing',],
+                   'collective.noindexing',
+                   ],
       },
       entry_points="""
       # -*- Entry points: -*-
