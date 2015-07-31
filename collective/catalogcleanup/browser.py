@@ -281,6 +281,9 @@ class Cleanup(BrowserView):
         except AttributeError:
             # Probably not a real brain, but a reference.
             brain_id = brain.getId()
+        else:
+            if 'portal_factory' in brain_id.split('/'):
+                return 'factory'
         try:
             # Usually: brain.getObject()
             obj = getattr(brain, getter)()

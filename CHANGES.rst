@@ -5,7 +5,9 @@ Changelog
 1.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Remove all items that have the ``portal_factory`` folder in their
+  path.
+  [maurits]
 
 
 1.4 (2014-05-12)
