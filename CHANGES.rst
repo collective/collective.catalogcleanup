@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.5 (unreleased)
+1.5 (2015-07-31)
 ----------------
 
 - Remove all items that have the ``portal_factory`` folder in their
