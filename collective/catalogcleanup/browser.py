@@ -227,6 +227,10 @@ class Cleanup(BrowserView):
                     # dry_run has been selected.
                     obj_errors += 1
                     continue
+                if obj is None:
+                    # No error, but no object either.  This happens in the
+                    # uid_catalog for references.
+                    continue
                 old_uid = getattr(aq_base(obj), UUID_ATTR, None)
                 if old_uid is None:
                     # Comments inherit the UID of their parent, at
@@ -295,6 +299,9 @@ class Cleanup(BrowserView):
             logger.exception("Cannot handle brain at %s.", brain_id)
             raise
         if obj is None:
+            # This might be a problem, but it also happens when the brain is for a reference.
+            if brain_id.endswith('at_references/' + brain.UID):
+                return
             return 'none'
         if isinstance(obj, BrokenClass):
             logger.warn("Broken %s: %s", brain.portal_type, brain_id)

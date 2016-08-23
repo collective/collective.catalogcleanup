@@ -5,7 +5,10 @@ Changelog
 1.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Do not complain about brains in uid_catalog that are references.
+  When their path points to `...at_references/<uid of brain>` then
+  this is normal.  I started wondering about a site that had more than
+  20 thousand problems reported this way.  [maurits]
 
 
 1.5 (2015-07-31)
