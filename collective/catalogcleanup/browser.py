@@ -299,8 +299,10 @@ class Cleanup(BrowserView):
             logger.exception("Cannot handle brain at %s.", brain_id)
             raise
         if obj is None:
-            # This might be a problem, but it also happens when the brain is for a reference.
-            if brain_id.endswith('at_references/' + brain.UID):
+            # This might be a problem, but it also happens when the brain is
+            # for a reference.
+            if ('at_references' in brain_id
+                    and brain_id.endswith('at_references/' + brain.UID)):
                 return
             return 'none'
         if isinstance(obj, BrokenClass):
