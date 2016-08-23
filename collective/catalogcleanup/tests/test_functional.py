@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 
 from Products.CMFCore.utils import getToolByName
 from plone.app.testing import TEST_USER_ID
