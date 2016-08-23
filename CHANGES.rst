@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.6 (unreleased)
+1.6 (2016-08-23)
 ----------------
 
 - Do not complain about brains in uid_catalog that are references.
