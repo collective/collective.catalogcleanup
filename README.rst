@@ -4,6 +4,14 @@
 Documentation
 =============
 
+.. image:: http://img.shields.io/pypi/v/collective.catalogcleanup.svg
+   :target: https://pypi.python.org/pypi/collective.catalogcleanup
+
+.. image:: https://img.shields.io/travis/collective/collective.catalogcleanup/master.svg
+    :target: http://travis-ci.org/collective/collective.catalogcleanup
+
+.. image:: https://img.shields.io/coveralls/collective/collective.catalogcleanup/master.svg
+    :target: https://coveralls.io/r/collective/collective.catalogcleanup
 
 Usage and goal
 --------------
