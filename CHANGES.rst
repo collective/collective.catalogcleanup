@@ -5,6 +5,11 @@ Changelog
 1.7 (unreleased)
 ----------------
 
+- Don't look for non unique ids in the ``reference_catalog``.
+  It looks like it is normal there.  At least, on one Plone 4.3 site
+  the code keeps creating several new uids every time I run it.
+  [maurits]
+
 - Don't complain about brains in ``reference_catalog`` where ``getObject`` returns None.
   This happens for content without apparent problems.  [maurits]
 

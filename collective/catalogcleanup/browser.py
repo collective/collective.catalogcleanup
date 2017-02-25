@@ -54,7 +54,10 @@ class Cleanup(BrowserView):
             problems += self.remove_without_object(catalog_id)
             if catalog_id == 'reference_catalog':
                 problems += self.check_references()
-            problems += self.non_unique_uids(catalog_id)
+            else:
+                # Non unique ids seem persistent in the reference catalog.
+                # Running the code several times keeps creating new uids.
+                problems += self.non_unique_uids(catalog_id)
             self.msg("%s: total problems: %d", catalog_id, problems)
 
         self.newline()
