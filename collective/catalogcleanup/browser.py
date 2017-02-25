@@ -162,6 +162,10 @@ class Cleanup(BrowserView):
                 # cleaned up by one of the other methods already.
                 ref_errors += 1
                 continue
+            if ref is None:
+                # No error, but no object either.  This can happen
+                # for references.  Let's accept it.
+                continue
             for getter in getters:
                 obj = self.get_object_or_status(ref, getter)
                 if not isinstance(obj, basestring):
