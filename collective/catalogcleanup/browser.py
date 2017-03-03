@@ -118,8 +118,8 @@ class Cleanup(BrowserView):
                     continue
                 catalog.uncatalog_object(path)
             uncatalog += 1
-        self.msg('%s: removed %d brains without UID.',
-            catalog_id, uncatalog)
+        self.msg(
+            '%s: removed %d brains without UID.', catalog_id, uncatalog)
         return uncatalog
 
     def remove_without_object(self, catalog_id):
@@ -274,7 +274,7 @@ class Cleanup(BrowserView):
                             continue
                     obj._updateCatalog(context)
                     obj.reindexObject(idxs=['UID'])
-                    logger.info('%s: new uid %s for %s (was %s).' % (
+                    logger.info('{0}: new uid {1} for {2} (was {3}).'.format(
                         catalog_id, obj.UID(), item.getPath(), old_uid))
 
         if obj_errors:
@@ -312,8 +312,8 @@ class Cleanup(BrowserView):
         if obj is None:
             # This might be a problem, but it also happens when the brain is
             # for a reference.
-            if ('at_references' in brain_id
-                    and brain_id.endswith('at_references/' + brain.UID)):
+            if ('at_references' in brain_id and
+                    brain_id.endswith('at_references/' + brain.UID)):
                 return
             return 'none'
         if isinstance(obj, BrokenClass):

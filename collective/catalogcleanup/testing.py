@@ -6,7 +6,6 @@ For Plone 5 we need to install plone.app.contenttypes.
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PloneSandboxLayer
 from zope.component import getMultiAdapter
-from zope.configuration import xmlconfig
 
 import pkg_resources
 
@@ -24,10 +23,9 @@ class CatalogCleanupLayer(PloneSandboxLayer):
     defaultBases = (PLONE_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):
-        # Load ZCML
         import collective.catalogcleanup
-        xmlconfig.file('configure.zcml', collective.catalogcleanup,
-                      context=configurationContext)
+        self.loadZCML(package=collective.catalogcleanup)
+
 
 CATALOG_CLEANUP_FIXTURE = CatalogCleanupLayer()
 CATALOG_CLEANUP_INTEGRATION_TESTING = IntegrationTesting(
@@ -45,6 +43,6 @@ def make_test_doc(portal):
 
 
 def cleanup(portal, **kwargs):
-    view = getMultiAdapter((portal, portal.REQUEST),
-                            name='collective-catalogcleanup')
+    view = getMultiAdapter(
+        (portal, portal.REQUEST), name='collective-catalogcleanup')
     return view(**kwargs)
