@@ -1,15 +1,18 @@
+from Acquisition import aq_base
+from Acquisition import aq_inner
+from Acquisition import aq_parent
 from itertools import groupby
-from operator import attrgetter
-import logging
-
-from Acquisition import aq_inner, aq_base, aq_parent
 from OFS.Uninstalled import BrokenClass
+from operator import attrgetter
 from Products.Archetypes.config import UUID_ATTR
 from Products.Archetypes.ReferenceEngine import Reference
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
-from ZODB.POSException import ConflictError
 from zExceptions import NotFound
+from ZODB.POSException import ConflictError
+
+import logging
+
 
 logger = logging.getLogger('collective.catalogcleanup')
 

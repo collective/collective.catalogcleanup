@@ -8,8 +8,8 @@ from plone.app.testing import PloneSandboxLayer
 from zope.component import getMultiAdapter
 from zope.configuration import xmlconfig
 
-
 import pkg_resources
+
 
 try:
     pkg_resources.get_distribution('plone.app.contenttypes')
