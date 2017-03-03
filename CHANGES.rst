@@ -5,7 +5,10 @@ Changelog
 1.7.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Ignore non existing catalogs.  Plone 5 does not always have
+  a ``uid_catalog`` or ``reference_catalog``.
+  Fixes `issue #5 <https://github.com/collective/collective.catalogcleanup/issues/5>`_.
+  [maurits]
 
 
 1.7 (2017-03-03)
@@ -24,7 +27,7 @@ Changelog
 ----------------
 
 - Do not complain about brains in uid_catalog that are references.
-  When their path points to `...at_references/<uid of brain>` then
+  When their path points to ``...at_references/<uid of brain>`` then
   this is normal.  I started wondering about a site that had more than
   20 thousand problems reported this way.  [maurits]
 
