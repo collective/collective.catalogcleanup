@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.7'
+version = '1.7.1.dev0'
 
 setup(name='collective.catalogcleanup',
       version=version,
