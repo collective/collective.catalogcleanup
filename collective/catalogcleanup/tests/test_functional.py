@@ -1,14 +1,13 @@
-import unittest
-
-from Products.CMFCore.utils import getToolByName
-from plone.app.testing import TEST_USER_ID
-from plone.app.testing import setRoles
+# -*- coding: utf-8 -*-
+from collective.catalogcleanup.testing import CATALOG_CLEANUP_INTEGRATION_TESTING  # noqa: E501
+from collective.catalogcleanup.testing import cleanup
+from collective.catalogcleanup.testing import make_test_doc
 from collective.noindexing import patches
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+from Products.CMFCore.utils import getToolByName
 
-from collective.catalogcleanup.testing import (
-    CATALOG_CLEANUP_INTEGRATION_TESTING,
-    make_test_doc, cleanup,
-    )
+import unittest
 
 
 class TestCatalogCleanup(unittest.TestCase):
