@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.7 (unreleased)
+1.7 (2017-03-03)
 ----------------
 
 - Don't look for non unique ids in the ``reference_catalog``.
