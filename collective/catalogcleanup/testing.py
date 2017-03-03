@@ -31,7 +31,7 @@ class CatalogCleanupLayer(PloneSandboxLayer):
 
 CATALOG_CLEANUP_FIXTURE = CatalogCleanupLayer()
 CATALOG_CLEANUP_INTEGRATION_TESTING = IntegrationTesting(
-    bases=(CATALOG_CLEANUP_FIXTURE,), name="CatalogCleanup:Integration")
+    bases=(CATALOG_CLEANUP_FIXTURE,), name='CatalogCleanup:Integration')
 
 # A few helper functions.
 
