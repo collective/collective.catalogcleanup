@@ -7,6 +7,7 @@ cache:
 env:
 - PLONE_VERSION=4.2
 - PLONE_VERSION=4.3
+- PLONE_VERSION=4.3 TEST_EGGS=plone.app.contenttypes
 - PLONE_VERSION=5.0
 - PLONE_VERSION=5.1
 matrix:
@@ -17,8 +18,8 @@ matrix:
 install:
 - sed -ie "s#test-4.3.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
 - python bootstrap.py
-- bin/buildout annotate
-- bin/buildout
+- bin/buildout buildout:test-eggs=$TEST_EGGS annotate
+- bin/buildout buildout:test-eggs=$TEST_EGGS
 script:
 - bin/code-analysis
 - bin/test
