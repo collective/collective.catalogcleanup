@@ -48,10 +48,14 @@ class Cleanup(BrowserView):
             self.msg('dry_run SELECTED, SO ONLY REPORTING. To make changes '
                      'permanent, add "?dry_run=false" to the URL.')
             self.newline()
+        context = aq_inner(self.context)
         catalog_ids = ['portal_catalog', 'uid_catalog', 'reference_catalog']
         for catalog_id in catalog_ids:
             problems = 0
             self.newline()
+            if getToolByName(context, catalog_id, None) is None:
+                self.msg('Ignored non existing catalog %s.', catalog_id)
+                continue
             self.msg('Handling catalog %s.', catalog_id)
             problems += self.report(catalog_id)
             problems += self.remove_without_uids(catalog_id)
