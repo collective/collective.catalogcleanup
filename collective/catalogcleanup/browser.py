@@ -306,7 +306,7 @@ class Cleanup(BrowserView):
             raise
         except (NotFound, AttributeError, KeyError):
             return 'notfound'
-        except:
+        except:  # noqa: B901
             logger.exception('Cannot handle brain at %s.', brain_id)
             raise
         if obj is None:
