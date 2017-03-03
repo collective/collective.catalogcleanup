@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from collective.catalogcleanup.testing import CATALOG_CLEANUP_INTEGRATION_TESTING  # noqa: E501
 from collective.catalogcleanup.testing import cleanup
 from collective.catalogcleanup.testing import make_test_doc
