@@ -7,21 +7,20 @@ cache:
 env:
 - PLONE_VERSION=4.2
 - PLONE_VERSION=4.3
-- PLONE_VERSION=4.3 TEST_EGGS=buildout:test-eggs=plone.app.contenttypes
 - PLONE_VERSION=5.0
 - PLONE_VERSION=5.1
 matrix:
   include:
   - python: 2.6
-    env: PLONE_VERSION=4.0 PARTS=buildout:parts-=code-analysis
+    env: PLONE_VERSION=4.0 PARTS=buildout:parts-=code-analysis $VERSIONS=versions:Products.MailHost=2.13.2
   - python: 2.6
     env: PLONE_VERSION=4.1 PARTS=buildout:parts-=code-analysis
   fast_finish: true
 install:
 - sed -ie "s#test-4.3.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
 - python bootstrap.py
-- bin/buildout $TEST_EGGS $PARTS annotate
-- bin/buildout $TEST_EGGS $PARTS
+- bin/buildout $PARTS $VERSIONS annotate
+- bin/buildout $PARTS $VERSIONS
 script:
 - test -x bin/code-analysis && bin/code-analysis || true
 - bin/test
