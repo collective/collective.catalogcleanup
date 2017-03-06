@@ -37,7 +37,6 @@ setup(name='collective.catalogcleanup',
       extras_require={
           'test': [
               'collective.noindexing',
-              'plone.app.robotframework',  # required by plone.app.event
               'plone.app.testing',
           ],
       },
