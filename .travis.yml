@@ -7,18 +7,22 @@ cache:
 env:
 - PLONE_VERSION=4.2
 - PLONE_VERSION=4.3
-- PLONE_VERSION=4.3 TEST_EGGS=plone.app.contenttypes
-- PLONE_VERSION=5.0
-- PLONE_VERSION=5.1
+- PLONE_VERSION=5.0 TEST_EGGS=buildout:test-eggs=plone.app.robotframework
+- PLONE_VERSION=5.1 TEST_EGGS=buildout:test-eggs=plone.app.robotframework
 matrix:
+  include:
+  - python: 2.6
+    env: PLONE_VERSION=4.0 PARTS=buildout:parts-=code-analysis
+  - python: 2.6
+    env: PLONE_VERSION=4.1 PARTS=buildout:parts-=code-analysis
   fast_finish: true
 install:
 - sed -ie "s#test-4.3.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
-- python bootstrap.py
-- bin/buildout buildout:test-eggs=$TEST_EGGS annotate
-- bin/buildout buildout:test-eggs=$TEST_EGGS
+- python bootstrap.py --buildout-version=2.5.3 --setuptools-version=20.1.1
+- bin/buildout $PARTS $TEST_EGGS annotate
+- bin/buildout $PARTS $TEST_EGGS
 script:
-- bin/code-analysis
+- test -x bin/code-analysis && bin/code-analysis || true
 - bin/test
 after_success:
 - bin/createcoverage
