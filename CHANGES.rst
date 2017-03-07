@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.7.1 (unreleased)
+1.7.1 (2017-03-07)
 ------------------
 
 - Tested for compatibility on Plone 4.0 through 5.1.  [hvelarde]
