@@ -92,13 +92,9 @@ Alternatives
 Compatibility
 -------------
 
-I have tried this on Plone 3.3 and 4.1.  It will likely work on other
-versions as well.
+I have tried this on Plone 3.3, Plone 4 and Plone 5.
 
-I have not tried it with Dexterity items.  It might not be needed for
-those.  Likely, it will either succeed normally or you get an
-AttributeError somewhere and the cleanup run is aborted.
-
+It is automatically tested by Travis on Plone 4.0, 4.1, 4.2, 4.3, 5.0, and 5.1.
 
 Authors
 -------

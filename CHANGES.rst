@@ -5,6 +5,8 @@ Changelog
 1.7.1 (unreleased)
 ------------------
 
+- Tested for compatibility on Plone 4.0 through 5.1.  [hvelarde]
+
 - Ignore non existing catalogs.  Plone 5 does not always have
   a ``uid_catalog`` or ``reference_catalog``.
   Fixes `issue #5 <https://github.com/collective/collective.catalogcleanup/issues/5>`_.
