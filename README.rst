@@ -94,7 +94,8 @@ Compatibility
 
 I have tried this on Plone 3.3, Plone 4 and Plone 5.
 
-It is automatically tested by Travis on Plone 4.0, 4.1, 4.2, 4.3, 5.0, and 5.1.
+It is automatically tested by Travis on Plone 4.1, 4.2, 4.3, 5.0, and 5.1.
+
 
 Authors
 -------
