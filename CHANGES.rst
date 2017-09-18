@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.7.2 (unreleased)
+1.7.2 (2017-09-18)
 ------------------
 
 - Added traceback info to help in case of problems.  [maurits]
