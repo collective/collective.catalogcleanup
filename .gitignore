@@ -1,11 +1,13 @@
 *.egg-info
 *.pyc
 *.pyo
+.coverage
 .installed.cfg
 bin
 coverage
 develop-eggs
 downloads
 eggs
+htmlcov
 parts
 var

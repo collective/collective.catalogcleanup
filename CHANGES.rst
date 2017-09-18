@@ -5,7 +5,7 @@ Changelog
 1.7.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Added traceback info to help in case of problems.  [maurits]
 
 
 1.7.1 (2017-03-07)

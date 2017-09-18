@@ -84,6 +84,7 @@ class Cleanup(BrowserView):
     def report(self, catalog_id):
         """Report about this catalog.
         """
+        __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         size = len(catalog)
@@ -106,6 +107,7 @@ class Cleanup(BrowserView):
     def remove_without_uids(self, catalog_id):
         """Remove all brains without UID.
         """
+        __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         uncatalog = 0
@@ -129,6 +131,7 @@ class Cleanup(BrowserView):
     def remove_without_object(self, catalog_id):
         """Remove all brains without object.
         """
+        __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         status = {}
@@ -158,6 +161,7 @@ class Cleanup(BrowserView):
     def check_references(self, catalog_id='reference_catalog'):
         """Remove all brains without proper references.
         """
+        __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         status = {}
@@ -213,6 +217,7 @@ class Cleanup(BrowserView):
         object; in that case the migration will not break, so we won't
         try to fix it.
         """
+        __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         if 'UID' not in catalog.indexes():
@@ -293,6 +298,7 @@ class Cleanup(BrowserView):
         return obj_errors + changed
 
     def get_object_or_status(self, brain, getter='getObject'):
+        __traceback_info__ = [brain, getter]
         try:
             brain_id = brain.getPath()
         except KeyError:
@@ -303,6 +309,7 @@ class Cleanup(BrowserView):
         else:
             if 'portal_factory' in brain_id.split('/'):
                 return 'factory'
+        __traceback_info__.append(brain_id)
         try:
             # Usually: brain.getObject()
             obj = getattr(brain, getter)()

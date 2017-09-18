@@ -12,8 +12,6 @@ env:
 matrix:
   include:
   - python: 2.6
-    env: PLONE_VERSION=4.0 PARTS=buildout:parts-=code-analysis
-  - python: 2.6
     env: PLONE_VERSION=4.1 PARTS=buildout:parts-=code-analysis
   fast_finish: true
 install:
@@ -25,7 +23,7 @@ script:
 - test -x bin/code-analysis && bin/code-analysis || true
 - bin/test
 after_success:
-- bin/createcoverage
+- bin/createcoverage --output-dir=htmlcov
 - pip install coveralls
 - coveralls
 notifications:

@@ -9,21 +9,18 @@ setup(name='collective.catalogcleanup',
       long_description=(open("README.rst").read() + "\n" +
                         open("CHANGES.rst").read()),
       # Get more strings from
-      # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      # https://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           "Framework :: Plone",
-          "Framework :: Plone :: 3.3",
-          "Framework :: Plone :: 4.0",
           "Framework :: Plone :: 4.1",
           "Framework :: Plone :: 4.2",
           "Framework :: Plone :: 4.3",
           "Framework :: Plone :: 5.0",
           "Framework :: Plone :: 5.1",
           "Programming Language :: Python",
-          "Programming Language :: Python :: 2.4",
           "Programming Language :: Python :: 2.6",
           "Programming Language :: Python :: 2.7",
-          ],
+      ],
       keywords='plone catalog cleanup',
       author='Maurits van Rees',
       author_email='m.van.rees@zestsoftware.nl',
