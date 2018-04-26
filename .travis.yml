@@ -15,6 +15,7 @@ matrix:
     env: PLONE_VERSION=4.1 PARTS=buildout:parts-=code-analysis
   fast_finish: true
 install:
+- pip install six==1.10.0
 - sed -ie "s#test-4.3.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
 - python bootstrap.py --buildout-version=2.5.3 --setuptools-version=20.1.1
 - bin/buildout $PARTS $TEST_EGGS annotate
