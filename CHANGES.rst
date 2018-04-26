@@ -5,7 +5,9 @@ Changelog
 1.7.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Catch KeyError for ``getPath`` in more cases.
+  Fixes `issue #14 <https://github.com/collective/collective.catalogcleanup/issues/14>`_.
+  [maurits]
 
 
 1.7.2 (2017-09-18)

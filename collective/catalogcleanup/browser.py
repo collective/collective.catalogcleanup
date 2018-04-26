@@ -18,8 +18,21 @@ import logging
 logger = logging.getLogger('collective.catalogcleanup')
 
 
+def safe_path(item):
+    try:
+        return item.getPath()
+    except KeyError:
+        return 'notfound'
+
+
 def path_len(item):
-    return len(item.getPath())
+    try:
+        return len(item.getPath())
+    except KeyError:
+        # For our use case (sort by path length and keep the item
+        # with the shortest path), it is best to return a high number
+        # in case of problems.
+        return 9999
 
 
 class Cleanup(BrowserView):
@@ -239,7 +252,7 @@ class Cleanup(BrowserView):
             # Sort by length of path.
             items = sorted(items, key=path_len)
             logger.info('%s: uid %s is kept for %s', catalog_id, uid,
-                        items[0].getPath())
+                        safe_path(items[0]))
             for item in items[1:]:
                 obj = self.get_object_or_status(item)
                 if isinstance(obj, basestring):
@@ -261,7 +274,7 @@ class Cleanup(BrowserView):
                         obj.reindexObject(idxs=['UID'])
                         new_uid = obj.UID()
                         logger.info('%s: uid %s is inherited by %s.',
-                                    catalog_id, new_uid, item.getPath())
+                                    catalog_id, new_uid, safe_path(item))
                     continue
                 # We need a change.
                 changed += 1
@@ -278,13 +291,13 @@ class Cleanup(BrowserView):
                         if isinstance(obj, Reference):
                             logger.warn('%s: removing reference %s with '
                                         'duplicate uid %s.', catalog_id,
-                                        item.getPath(), old_uid)
+                                        safe_path(item), old_uid)
                             del aq_parent(obj)[obj.getId()]
                             continue
                     obj._updateCatalog(context)
                     obj.reindexObject(idxs=['UID'])
                     logger.info('{0}: new uid {1} for {2} (was {3}).'.format(
-                        catalog_id, obj.UID(), item.getPath(), old_uid))
+                        catalog_id, obj.UID(), safe_path(item), old_uid))
 
         if obj_errors:
             self.msg('%s: problem getting %d objects.', catalog_id,
