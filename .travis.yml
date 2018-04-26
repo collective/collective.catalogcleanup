@@ -5,14 +5,10 @@ cache:
   directories:
   - eggs
 env:
-- PLONE_VERSION=4.2
 - PLONE_VERSION=4.3
 - PLONE_VERSION=5.0 TEST_EGGS=buildout:test-eggs=plone.app.robotframework
 - PLONE_VERSION=5.1 TEST_EGGS=buildout:test-eggs=plone.app.robotframework
 matrix:
-  include:
-  - python: 2.6
-    env: PLONE_VERSION=4.1 PARTS=buildout:parts-=code-analysis
   fast_finish: true
 install:
 - pip install six==1.10.0
