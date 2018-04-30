@@ -7,7 +7,7 @@ Changelog
 
 - No longer test on Plone 4.1 and 4.2 and on Python 2.6.  [maurits]
 
-- Catch KeyError for ``getPath`` in more cases.
+- Catch ``KeyError`` and ``AttributeError`` for ``getPath`` in more cases.
   Fixes `issue #14 <https://github.com/collective/collective.catalogcleanup/issues/14>`_.
   [maurits]
 

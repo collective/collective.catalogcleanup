@@ -21,14 +21,14 @@ logger = logging.getLogger('collective.catalogcleanup')
 def safe_path(item):
     try:
         return item.getPath()
-    except KeyError:
+    except (KeyError, AttributeError):
         return 'notfound'
 
 
 def path_len(item):
     try:
         return len(item.getPath())
-    except KeyError:
+    except (KeyError, AttributeError):
         # For our use case (sort by path length and keep the item
         # with the shortest path), it is best to return a high number
         # in case of problems.
@@ -134,7 +134,7 @@ class Cleanup(BrowserView):
             if not self.dry_run:
                 try:
                     path = brain.getPath()
-                except KeyError:
+                except (KeyError, AttributeError):
                     continue
                 catalog.uncatalog_object(path)
             uncatalog += 1
@@ -159,7 +159,7 @@ class Cleanup(BrowserView):
             if not self.dry_run:
                 try:
                     path = brain.getPath()
-                except KeyError:
+                except (KeyError, AttributeError):
                     continue
                 catalog.uncatalog_object(path)
             # We have an error.
@@ -208,7 +208,7 @@ class Cleanup(BrowserView):
                 if not self.dry_run:
                     try:
                         path = brain.getPath()
-                    except KeyError:
+                    except (KeyError, AttributeError):
                         continue
                     catalog.uncatalog_object(path)
                 # No need for the second getter if the first already
