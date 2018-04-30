@@ -18,8 +18,21 @@ import logging
 logger = logging.getLogger('collective.catalogcleanup')
 
 
+def safe_path(item):
+    try:
+        return item.getPath()
+    except (KeyError, AttributeError):
+        return 'notfound'
+
+
 def path_len(item):
-    return len(item.getPath())
+    try:
+        return len(item.getPath())
+    except (KeyError, AttributeError):
+        # For our use case (sort by path length and keep the item
+        # with the shortest path), it is best to return a high number
+        # in case of problems.
+        return 9999
 
 
 class Cleanup(BrowserView):
@@ -54,9 +67,10 @@ class Cleanup(BrowserView):
             problems = 0
             self.newline()
             if getToolByName(context, catalog_id, None) is None:
-                self.msg('Ignored non existing catalog %s.', catalog_id)
+                self.msg(
+                    'Ignored non existing catalog {0}.'.format(catalog_id))
                 continue
-            self.msg('Handling catalog %s.', catalog_id)
+            self.msg('Handling catalog {0}.'.format(catalog_id))
             problems += self.report(catalog_id)
             problems += self.remove_without_uids(catalog_id)
             problems += self.remove_without_object(catalog_id)
@@ -66,14 +80,13 @@ class Cleanup(BrowserView):
                 # Non unique ids seem persistent in the reference catalog.
                 # Running the code several times keeps creating new uids.
                 problems += self.non_unique_uids(catalog_id)
-            self.msg('%s: total problems: %d', catalog_id, problems)
+            self.msg('{0}: total problems: {1:d}'.format(catalog_id, problems))
 
         self.newline()
         self.msg('Done with catalog cleanup.')
         return '\n'.join(self.messages)
 
-    def msg(self, msg, *args, **kwargs):
-        msg = msg % args
+    def msg(self, msg, **kwargs):
         level = kwargs.get('level', logging.INFO)
         logger.log(level, msg)
         self.messages.append(msg)
@@ -88,7 +101,7 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         size = len(catalog)
-        self.msg('Brains in %s: %d', catalog_id, size)
+        self.msg('Brains in {0}: {1:d}'.format(catalog_id, size))
         # Getting all brains from the catalog may give a different
         # result for some reason.  Using an empty filter to query the
         # catalog will give a DeprecationWarning and may not work on
@@ -99,8 +112,9 @@ class Cleanup(BrowserView):
         # we get the DeprecationWarning anyway.  So be it.
         alternative_size = len(catalog(**standard_filter))
         if alternative_size != size:
-            self.msg('Brains in %s using standard filter is different: %d',
-                     catalog_id, alternative_size, level=logging.WARN)
+            self.msg(
+                'Brains in {0} using standard filter is different: {1:d}'
+                .format(catalog_id, alternative_size), level=logging.WARN)
             return 1
         return 0
 
@@ -120,12 +134,13 @@ class Cleanup(BrowserView):
             if not self.dry_run:
                 try:
                     path = brain.getPath()
-                except KeyError:
+                except (KeyError, AttributeError):
                     continue
                 catalog.uncatalog_object(path)
             uncatalog += 1
         self.msg(
-            '%s: removed %d brains without UID.', catalog_id, uncatalog)
+            '{0}: removed {1:d} brains without UID.'
+            .format(catalog_id, uncatalog))
         return uncatalog
 
     def remove_without_object(self, catalog_id):
@@ -144,7 +159,7 @@ class Cleanup(BrowserView):
             if not self.dry_run:
                 try:
                     path = brain.getPath()
-                except KeyError:
+                except (KeyError, AttributeError):
                     continue
                 catalog.uncatalog_object(path)
             # We have an error.
@@ -152,10 +167,12 @@ class Cleanup(BrowserView):
             status[obj] = count + 1
 
         for error, value in status.items():
-            self.msg('%s: removed %d brains with status %s.', catalog_id,
-                     value, error)
+            self.msg(
+                '{0}: removed {1:d} brains with status {2}.'
+                .format(catalog_id, value, error))
         if not status:
-            self.msg('%s: removed no brains in object check.', catalog_id)
+            self.msg(
+                '{0}: removed no brains in object check.'.format(catalog_id))
         return sum(status.values())
 
     def check_references(self, catalog_id='reference_catalog'):
@@ -191,7 +208,7 @@ class Cleanup(BrowserView):
                 if not self.dry_run:
                     try:
                         path = brain.getPath()
-                    except KeyError:
+                    except (KeyError, AttributeError):
                         continue
                     catalog.uncatalog_object(path)
                 # No need for the second getter if the first already
@@ -199,13 +216,17 @@ class Cleanup(BrowserView):
                 break
 
         if ref_errors:
-            self.msg('%s: problem getting %d references.', catalog_id,
-                     ref_errors)
+            self.msg(
+                '{0}: problem getting {1:d} references.'
+                .format(catalog_id, ref_errors))
         for error, value in status.items():
-            self.msg('%s: removed %d brains with status %s for source or '
-                     'target object.', catalog_id, value, error)
+            self.msg(
+                '{0}: removed {1:d} brains with status {2} for source or '
+                'target object.'.format(catalog_id, value, error))
         if not status:
-            self.msg('%s: removed no brains in reference check.', catalog_id)
+            self.msg(
+                '{0}: removed no brains in reference check.'
+                .format(catalog_id))
         return sum(status.values()) + ref_errors
 
     def non_unique_uids(self, catalog_id):
@@ -221,7 +242,7 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         if 'UID' not in catalog.indexes():
-            self.msg('%s: no UID index.', catalog_id)
+            self.msg('{0}: no UID index.'.format(catalog_id))
             return
         non_unique = 0
         changed = 0
@@ -239,7 +260,7 @@ class Cleanup(BrowserView):
             # Sort by length of path.
             items = sorted(items, key=path_len)
             logger.info('%s: uid %s is kept for %s', catalog_id, uid,
-                        items[0].getPath())
+                        safe_path(items[0]))
             for item in items[1:]:
                 obj = self.get_object_or_status(item)
                 if isinstance(obj, basestring):
@@ -261,7 +282,7 @@ class Cleanup(BrowserView):
                         obj.reindexObject(idxs=['UID'])
                         new_uid = obj.UID()
                         logger.info('%s: uid %s is inherited by %s.',
-                                    catalog_id, new_uid, item.getPath())
+                                    catalog_id, new_uid, safe_path(item))
                     continue
                 # We need a change.
                 changed += 1
@@ -278,23 +299,28 @@ class Cleanup(BrowserView):
                         if isinstance(obj, Reference):
                             logger.warn('%s: removing reference %s with '
                                         'duplicate uid %s.', catalog_id,
-                                        item.getPath(), old_uid)
+                                        safe_path(item), old_uid)
                             del aq_parent(obj)[obj.getId()]
                             continue
                     obj._updateCatalog(context)
                     obj.reindexObject(idxs=['UID'])
                     logger.info('{0}: new uid {1} for {2} (was {3}).'.format(
-                        catalog_id, obj.UID(), item.getPath(), old_uid))
+                        catalog_id, obj.UID(), safe_path(item), old_uid))
 
         if obj_errors:
-            self.msg('%s: problem getting %d objects.', catalog_id,
-                     obj_errors)
-        self.msg('%s: %d non unique uids found.', catalog_id, non_unique)
+            self.msg(
+                '{0}: problem getting {1:d} objects.'
+                .format(catalog_id, obj_errors))
+        self.msg(
+            '{0}: {1:d} non unique uids found.'.format(catalog_id, non_unique))
         if self.dry_run:
-            self.msg('%s: %d items need new unique uids.', catalog_id, changed)
+            self.msg(
+                '{0}: {1:d} items need new unique uids.'
+                .format(catalog_id, changed))
         else:
-            self.msg('%s: %d items given new unique uids.', catalog_id,
-                     changed)
+            self.msg(
+                '{0}: {1:d} items given new unique uids.'
+                .format(catalog_id, changed))
         return obj_errors + changed
 
     def get_object_or_status(self, brain, getter='getObject'):
