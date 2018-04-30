@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
-version = '1.8.0.dev0'
+version = '1.8.0'
 
 setup(name='collective.catalogcleanup',
       version=version,

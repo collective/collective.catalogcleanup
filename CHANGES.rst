@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.8.0 (unreleased)
+1.8.0 (2018-04-30)
 ------------------
 
 - No longer test on Plone 4.1 and 4.2 and on Python 2.6.  [maurits]
