@@ -5,7 +5,10 @@ Changelog
 1.8.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Catch TypeError when getting object for brain.
+  Can happen when an object that used to be referenceable is no longer referenceable.
+  Fixes `issue #19 <https://github.com/collective/collective.catalogcleanup/issues/19>`_.
+  [maurits]
 
 
 1.8.0 (2018-04-30)
