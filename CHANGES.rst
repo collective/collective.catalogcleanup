@@ -5,6 +5,11 @@ Changelog
 1.8.1 (unreleased)
 ------------------
 
+- Catch TypeError when getting object for brain.
+  Can happen when an object that used to be referenceable is no longer referenceable.
+  Fixes `issue #19 <https://github.com/collective/collective.catalogcleanup/issues/19>`_.
+  [maurits]
+
 - Disable CSRF protection.
   Fixes `issue #17 <https://github.com/collective/collective.catalogcleanup/issues/17>`_.
   [maurits]

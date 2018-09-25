@@ -359,6 +359,11 @@ class Cleanup(BrowserView):
             raise
         except (NotFound, AttributeError, KeyError):
             return 'notfound'
+        except TypeError:
+            logger.warning(
+                'TypeError, returning notfound for brain at %s.',
+                brain_id, exc_info=1)
+            return 'notfound'
         except:  # noqa: B901
             logger.exception('Cannot handle brain at %s.', brain_id)
             raise
