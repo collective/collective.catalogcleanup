@@ -5,7 +5,13 @@ Changelog
 1.8.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Disable CSRF protection.
+  Fixes `issue #17 <https://github.com/collective/collective.catalogcleanup/issues/17>`_.
+  [maurits]
+
+- Abort any transaction changes in dry run mode.
+  There should not be any changes here anyway, but this makes sure.
+  [maurits]
 
 
 1.8.0 (2018-04-30)
