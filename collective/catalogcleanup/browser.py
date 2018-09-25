@@ -11,9 +11,16 @@ from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from zExceptions import NotFound
 from ZODB.POSException import ConflictError
+from zope.interface import alsoProvides
 
 import logging
+import transaction
 
+
+try:
+    from plone.protect.interfaces import IDisableCSRFProtection
+except ImportError:
+    IDisableCSRFProtection = None
 
 logger = logging.getLogger('collective.catalogcleanup')
 
@@ -84,6 +91,15 @@ class Cleanup(BrowserView):
 
         self.newline()
         self.msg('Done with catalog cleanup.')
+        if self.dry_run:
+            # We should not have made any changes, but let's back out any
+            # inadvertent changes anyway.
+            transaction.abort()
+            self.msg('Dry run selected: aborted any transaction changes.')
+        elif IDisableCSRFProtection is not None:
+            # Avoid csrf protection errors, as we have no form.
+            alsoProvides(self.request, IDisableCSRFProtection)
+
         return '\n'.join(self.messages)
 
     def msg(self, msg, **kwargs):

@@ -3,11 +3,12 @@
 
 For Plone 5 we need to install plone.app.contenttypes.
 """
-from plone.app.testing import IntegrationTesting
+from plone.app.testing import FunctionalTesting
 from plone.app.testing import PloneSandboxLayer
 from zope.component import getMultiAdapter
 
 import pkg_resources
+import transaction
 
 
 try:
@@ -29,7 +30,7 @@ class CatalogCleanupLayer(PloneSandboxLayer):
 
 
 CATALOG_CLEANUP_FIXTURE = CatalogCleanupLayer()
-CATALOG_CLEANUP_INTEGRATION_TESTING = IntegrationTesting(
+CATALOG_CLEANUP_FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(CATALOG_CLEANUP_FIXTURE,), name='CatalogCleanup:Integration')
 
 # A few helper functions.
@@ -40,6 +41,7 @@ def make_test_doc(portal):
     portal.invokeFactory('Document', new_id)
     doc = portal[new_id]
     doc.reindexObject()  # Might have already happened, but let's be sure.
+    transaction.commit()
     return doc
 
 

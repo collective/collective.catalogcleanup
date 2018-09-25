@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from collective.catalogcleanup.testing import CATALOG_CLEANUP_INTEGRATION_TESTING  # noqa: E501
+from collective.catalogcleanup.testing import CATALOG_CLEANUP_FUNCTIONAL_TESTING  # noqa: E501
 from collective.catalogcleanup.testing import cleanup
 from collective.catalogcleanup.testing import make_test_doc
 from collective.noindexing import patches
@@ -7,12 +7,13 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
 
+import transaction
 import unittest
 
 
 class TestCatalogCleanup(unittest.TestCase):
 
-    layer = CATALOG_CLEANUP_INTEGRATION_TESTING
+    layer = CATALOG_CLEANUP_FUNCTIONAL_TESTING
 
     def _makeOne(self):
         return make_test_doc(self.layer['portal'])
@@ -23,6 +24,7 @@ class TestCatalogCleanup(unittest.TestCase):
         patches.apply()
         portal._delObject(doc.getId())
         patches.unapply()
+        transaction.commit()
 
     def testNormalDeletedDocument(self):
         # No tricks here, just testing some assumptions.
@@ -33,6 +35,7 @@ class TestCatalogCleanup(unittest.TestCase):
         doc = self._makeOne()
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
         portal._delObject(doc.getId())
+        transaction.commit()
         self.assertEqual(len(catalog.searchResults({})), base_count)
         cleanup(portal)
         self.assertEqual(len(catalog.searchResults({})), base_count)
@@ -48,7 +51,7 @@ class TestCatalogCleanup(unittest.TestCase):
         # it is removed:
         self._delete_object_only(doc)
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
-        # By default dry_run in selected to nothing is changed.
+        # By default dry_run is selected, so nothing is changed.
         cleanup(portal)
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
         # None of these variants should have any lasting effect.
