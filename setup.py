@@ -8,8 +8,7 @@ setup(name='collective.catalogcleanup',
       description="Remove outdated items from the catalog",
       long_description=(open("README.rst").read() + "\n" +
                         open("CHANGES.rst").read()),
-      # Get more strings from
-      # https://pypi.org/pypi?%3Aaction=list_classifiers
+      # Get more strings from https://pypi.org/classifiers/
       classifiers=[
           "Framework :: Plone",
           "Framework :: Plone :: 4.3",
@@ -17,6 +16,7 @@ setup(name='collective.catalogcleanup',
           "Framework :: Plone :: 5.1",
           "Programming Language :: Python",
           "Programming Language :: Python :: 2.7",
+          "License :: OSI Approved :: GNU General Public License (GPL)",
       ],
       keywords='plone catalog cleanup',
       author='Maurits van Rees',
