@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.9.0 (unreleased)
+1.9.0 (2018-09-25)
 ------------------
 
 - Catch TypeError when getting object for brain.
