@@ -5,8 +5,6 @@ from Acquisition import aq_parent
 from itertools import groupby
 from OFS.Uninstalled import BrokenClass
 from operator import attrgetter
-from Products.Archetypes.config import UUID_ATTR
-from Products.Archetypes.ReferenceEngine import Reference
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from zExceptions import NotFound
@@ -18,11 +16,25 @@ import transaction
 
 
 try:
+    from Products.Archetypes.config import UUID_ATTR
+    from Products.Archetypes.ReferenceEngine import Reference
+except ImportError:
+    # Plone 5.2 on Python 3 never has Archetypes.
+    UUID_ATTR = "_at_uid"
+    Reference = None
+
+try:
     from plone.protect.interfaces import IDisableCSRFProtection
 except ImportError:
     IDisableCSRFProtection = None
 
 logger = logging.getLogger('collective.catalogcleanup')
+
+try:
+    basestring
+except NameError:
+    # Python 3
+    basestring = (str, bytes)
 
 
 def safe_path(item):
@@ -312,7 +324,7 @@ class Cleanup(BrowserView):
                         obj._register()
                     except AttributeError:
                         # Might happen for a Reference.
-                        if isinstance(obj, Reference):
+                        if Reference is not None and isinstance(obj, Reference):
                             logger.warn('%s: removing reference %s with '
                                         'duplicate uid %s.', catalog_id,
                                         safe_path(item), old_uid)
