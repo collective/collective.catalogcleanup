@@ -6,7 +6,9 @@ Changelog
 ------------------
 
 - `Bug 22 <https://github.com/collective/collective.catalogcleanup/issues/22>`_:
-  Fix startup error when Archetypes is missing.  [maurits]
+  Fix startup error when Archetypes is missing.
+  Fix other Plone 5.2 and Python 3 errors.
+  Should be compatible with Plone 4.3, 5.1 and 5.2 now.  [maurits]
 
 
 1.9.0 (2018-09-25)
