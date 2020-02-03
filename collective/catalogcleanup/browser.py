@@ -30,6 +30,12 @@ except ImportError:
 
 logger = logging.getLogger('collective.catalogcleanup')
 
+try:
+    basestring
+except NameError:
+    # Python 3
+    basestring = (str, bytes)
+
 
 def safe_path(item):
     try:
