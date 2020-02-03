@@ -10,12 +10,14 @@ setup(name='collective.catalogcleanup',
                         open("CHANGES.rst").read()),
       # Get more strings from https://pypi.org/classifiers/
       classifiers=[
+          "Development Status :: 5 - Production/Stable",
           "Framework :: Plone",
           "Framework :: Plone :: 4.3",
-          "Framework :: Plone :: 5.0",
           "Framework :: Plone :: 5.1",
+          "Framework :: Plone :: 5.2",
           "Programming Language :: Python",
           "Programming Language :: Python :: 2.7",
+          "Programming Language :: Python :: 3.7",
           "License :: OSI Approved :: GNU General Public License (GPL)",
       ],
       keywords='plone catalog cleanup',
@@ -33,6 +35,7 @@ setup(name='collective.catalogcleanup',
       extras_require={
           'test': [
               'collective.noindexing',
+              'plone.app.robotframework',
               'plone.app.testing',
           ],
       },

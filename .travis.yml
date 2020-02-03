@@ -1,27 +1,12 @@
-language: python
-python: 2.7
-sudo: false
-cache:
-  directories:
-  - eggs
-env:
-- PLONE_VERSION=4.3
-- PLONE_VERSION=5.0 TEST_EGGS=buildout:test-eggs=plone.app.robotframework
-- PLONE_VERSION=5.1 TEST_EGGS=buildout:test-eggs=plone.app.robotframework
+version: ~> 1.0
+import: collective/buildout.plonetest:travis/default.yml
 matrix:
-  fast_finish: true
-install:
-- pip install six==1.10.0
-- sed -ie "s#test-4.3.x.cfg#test-$PLONE_VERSION.x.cfg#" buildout.cfg
-- python bootstrap.py --buildout-version=2.5.3 --setuptools-version=20.1.1
-- bin/buildout $PARTS $TEST_EGGS annotate
-- bin/buildout $PARTS $TEST_EGGS
-script:
-- test -x bin/code-analysis && bin/code-analysis || true
-- bin/test
-after_success:
-- bin/createcoverage --output-dir=htmlcov
-- pip install coveralls
-- coveralls
-notifications:
-  irc: irc.freenode.org#plone-testing
+  include:
+    - python: "2.7"
+      env: PLONE_VERSION="4.3"
+    - python: "2.7"
+      env: PLONE_VERSION="5.1"
+    - python: "2.7"
+      env: PLONE_VERSION="5.2"
+    - python: "3.7"
+      env: PLONE_VERSION="5.2"
