@@ -8,6 +8,8 @@ from plone.app.testing import PloneSandboxLayer
 from zope.component import getMultiAdapter
 
 import pkg_resources
+import random
+import string
 import transaction
 
 
@@ -37,7 +39,13 @@ CATALOG_CLEANUP_FUNCTIONAL_TESTING = FunctionalTesting(
 
 
 def make_test_doc(portal):
-    new_id = portal.generateUniqueId('Document')
+    # new_id = portal.generateUniqueId('Document')
+    # generateUniqueId no longer exists in all Plone versions.
+    # Get a sufficiently unique id.
+    new_id = "doc_{0}_{1}".format(
+        "".join(random.sample(string.ascii_letters, 10)),
+        "".join(random.sample(string.digits, 4)),
+    )
     portal.invokeFactory('Document', new_id)
     doc = portal[new_id]
     doc.reindexObject()  # Might have already happened, but let's be sure.
