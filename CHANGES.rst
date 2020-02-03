@@ -5,7 +5,8 @@ Changelog
 1.9.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- `Bug 22 <https://github.com/collective/collective.catalogcleanup/issues/22>`_:
+  Fix startup error when Archetypes is missing.  [maurits]
 
 
 1.9.0 (2018-09-25)
