@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-1.9.1 (unreleased)
-------------------
+1.10.0 (unreleased)
+-------------------
+
+- To get all brains, use ``catalog.getAllBrains`` when available.
+  This is available in ``Products.ZCatalog`` 2.13.30+ or 4.1+.
+  Fall back to ``unrestrictedSearchResults``.
+  Fixes `issue 16 <https://github.com/collective/collective.catalogcleanup/issues/16>`_.
+  [maurits]
 
 - `Bug 22 <https://github.com/collective/collective.catalogcleanup/issues/22>`_:
   Fix startup error when Archetypes is missing.
