@@ -61,7 +61,12 @@ def get_all_brains(catalog):
         # This needs Products.ZCatalog 2.13.30+ or 4.1+.
         return list(catalog.getAllBrains())
     except AttributeError:
-        return list(catalog.unrestrictedSearchResults())
+        try:
+            # Most other catalogs
+            return list(catalog.unrestrictedSearchResults())
+        except AttributeError:
+            # uid_catalog
+            return list(catalog())
 
 
 class Cleanup(BrowserView):
@@ -164,7 +169,11 @@ class Cleanup(BrowserView):
         # We need to get the complete list instead of a lazy
         # mapping, otherwise iterating misses half of the brains
         # and we would need to try again.
-        brains = list(catalog.unrestrictedSearchResults(UID=None))
+        try:
+            brains = list(catalog.unrestrictedSearchResults(UID=None))
+        except AttributeError:
+            # uid_catalog
+            brains = list(catalog(UID=None))
         for brain in brains:
             if not self.dry_run:
                 try:

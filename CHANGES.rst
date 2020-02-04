@@ -7,7 +7,7 @@ Changelog
 
 - To get all brains, use ``catalog.getAllBrains`` when available.
   This is available in ``Products.ZCatalog`` 2.13.30+ or 4.1+.
-  Fall back to ``unrestrictedSearchResults``.
+  We fall back to ``unrestrictedSearchResults`` and otherwise just call the catalog.
   Fixes `issue 16 <https://github.com/collective/collective.catalogcleanup/issues/16>`_.
   [maurits]
 
