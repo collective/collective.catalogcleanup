@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.10.0 (unreleased)
+1.10.0 (2020-02-08)
 -------------------
 
 - To get all brains, use ``catalog.getAllBrains`` when available.
