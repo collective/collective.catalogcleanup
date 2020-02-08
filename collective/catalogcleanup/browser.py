@@ -54,6 +54,21 @@ def path_len(item):
         return 9999
 
 
+def get_all_brains(catalog):
+    # Return a full list, not a generator,
+    # because we may delete brains from the catalog while iterating over them.
+    try:
+        # This needs Products.ZCatalog 2.13.30+ or 4.1+.
+        return list(catalog.getAllBrains())
+    except AttributeError:
+        try:
+            # Most other catalogs
+            return list(catalog.unrestrictedSearchResults())
+        except AttributeError:
+            # uid_catalog
+            return list(catalog())
+
+
 class Cleanup(BrowserView):
 
     def __call__(self, dry_run=None):
@@ -128,20 +143,18 @@ class Cleanup(BrowserView):
         __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
+        # This uses a special method to get the length:
         size = len(catalog)
         self.msg('Brains in {0}: {1:d}'.format(catalog_id, size))
         # Getting all brains from the catalog may give a different
-        # result for some reason.  Using an empty filter to query the
-        # catalog will give a DeprecationWarning and may not work on
-        # Zope 2.14 anymore.  We try to avoid this.  Also, we want
-        # brains in all languages in case of LinguaPlone.
-        standard_filter = {'Language': 'all'}
-        # Actually, the uid_catalog usually has no path index, so
-        # we get the DeprecationWarning anyway.  So be it.
-        alternative_size = len(catalog(**standard_filter))
+        # result for various reasons: multilingual language filter,
+        # publication date in future, catalog not returning any results
+        # when called without a query, even with unrestrictedSearchResults.
+        # So check that we can get all brains, as we will use this in all checks.
+        alternative_size = len(get_all_brains(catalog))
         if alternative_size != size:
             self.msg(
-                'Brains in {0} using standard filter is different: {1:d}'
+                'Brains in {0} using getAllBrains is different: {1:d}'
                 .format(catalog_id, alternative_size), level=logging.WARN)
             return 1
         return 0
@@ -153,11 +166,14 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         uncatalog = 0
-        uid_filter = {'UID': None, 'Language': 'all'}
         # We need to get the complete list instead of a lazy
         # mapping, otherwise iterating misses half of the brains
         # and we would need to try again.
-        brains = list(catalog(**uid_filter))
+        try:
+            brains = list(catalog.unrestrictedSearchResults(UID=None))
+        except AttributeError:
+            # uid_catalog
+            brains = list(catalog(UID=None))
         for brain in brains:
             if not self.dry_run:
                 try:
@@ -178,8 +194,7 @@ class Cleanup(BrowserView):
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         status = {}
-        standard_filter = {'Language': 'all'}
-        brains = list(catalog(**standard_filter))
+        brains = get_all_brains(catalog)
         for brain in brains:
             obj = self.get_object_or_status(brain)
             if not isinstance(obj, basestring):
@@ -211,8 +226,7 @@ class Cleanup(BrowserView):
         catalog = getToolByName(context, catalog_id)
         status = {}
         ref_errors = 0
-        standard_filter = {'Language': 'all'}
-        brains = list(catalog(**standard_filter))
+        brains = get_all_brains(catalog)
         getters = ('getSourceObject', 'getTargetObject')
         for brain in brains:
             ref = self.get_object_or_status(brain)
@@ -275,8 +289,7 @@ class Cleanup(BrowserView):
         non_unique = 0
         changed = 0
         obj_errors = 0
-        standard_filter = {'Language': 'all'}
-        brains = list(catalog(**standard_filter))
+        brains = get_all_brains(catalog)
         uid_getter = attrgetter('UID')
         brains = sorted(brains, key=uid_getter)
         for uid, group in groupby(brains, uid_getter):
