@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.0 (unreleased)
+1.11.0 (2021-07-29)
 -------------------
 
 - Report and remove brains that have a wrong path.
