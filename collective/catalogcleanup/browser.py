@@ -410,6 +410,13 @@ class Cleanup(BrowserView):
                 return
             return 'none'
         if isinstance(obj, BrokenClass):
-            logger.warn('Broken %s: %s', brain.portal_type, brain_id)
+            logger.warning('Broken %s: %s', brain.portal_type, brain_id)
             return 'broken'
+        actual_path = "/".join(obj.getPhysicalPath())
+        if brain_id != actual_path:
+            # Likely acquisition:
+            # /Plone/folder/folder has gotten in the catalog,
+            # but really only /Plone/folder exists.
+            logger.warning('Wrong path: getting %s leads to %s', brain_id, actual_path)
+            return 'wrong_path'
         return obj

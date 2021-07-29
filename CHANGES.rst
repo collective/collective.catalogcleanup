@@ -5,6 +5,14 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
+- Report and remove brains that have a wrong path.
+  These are brains where an object is found at the given path,
+  but the actual path of this object is different.
+  This can be caused by acquisition:
+  /Plone/folder/folder has gotten in the catalog,
+  but really only /Plone/folder exists.
+  [maurits]
+
 - Fixed error sorting UIDs when one of them is None.  [maurits]
 
 
