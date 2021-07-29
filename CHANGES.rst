@@ -5,7 +5,7 @@ Changelog
 1.10.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fixed error sorting UIDs when one of them is None.  [maurits]
 
 
 1.10.0 (2020-02-08)

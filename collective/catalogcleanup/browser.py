@@ -4,7 +4,6 @@ from Acquisition import aq_inner
 from Acquisition import aq_parent
 from itertools import groupby
 from OFS.Uninstalled import BrokenClass
-from operator import attrgetter
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from zExceptions import NotFound
@@ -67,6 +66,18 @@ def get_all_brains(catalog):
         except AttributeError:
             # uid_catalog
             return list(catalog())
+
+
+def uid_getter(item):
+    """Get UID from item (brain).
+
+    operator.attrgetter('UID') should be fine,
+    but this fails for sorting when there one of the UIDs is None:
+
+    '<' not supported between instances of 'NoneType' and 'str'
+
+    """
+    return getattr(item, "UID", "")
 
 
 class Cleanup(BrowserView):
@@ -290,7 +301,6 @@ class Cleanup(BrowserView):
         changed = 0
         obj_errors = 0
         brains = get_all_brains(catalog)
-        uid_getter = attrgetter('UID')
         brains = sorted(brains, key=uid_getter)
         for uid, group in groupby(brains, uid_getter):
             items = list(group)
