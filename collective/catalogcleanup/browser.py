@@ -77,7 +77,7 @@ def uid_getter(item):
     '<' not supported between instances of 'NoneType' and 'str'
 
     """
-    return getattr(item, "UID", "")
+    return getattr(item, "UID", "") or ""
 
 
 class Cleanup(BrowserView):
