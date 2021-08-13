@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.1 (unreleased)
+1.11.1 (2021-08-13)
 -------------------
 
 - Again fixed error sorting UIDs when one of them is None.  [maurits]
