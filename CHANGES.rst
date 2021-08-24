@@ -5,7 +5,9 @@ Changelog
 1.11.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Do not complain about paths being different when the brain path is relative.
+  Happens in old uid_catalog and reference_catalog.
+  [maurits]
 
 
 1.11.1 (2021-08-13)
