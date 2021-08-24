@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.11.2 (unreleased)
+1.11.2 (2021-08-24)
 -------------------
 
 - Do not complain about paths being different when the brain path is relative.
