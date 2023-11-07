@@ -16,11 +16,9 @@ import transaction
 
 try:
     from Products.Archetypes.config import UUID_ATTR
-    from Products.Archetypes.ReferenceEngine import Reference
 except ImportError:
     # Plone 5.2 on Python 3 never has Archetypes.
     UUID_ATTR = "_at_uid"
-    Reference = None
 
 try:
     from plone.protect.interfaces import IDisableCSRFProtection
@@ -56,16 +54,7 @@ def path_len(item):
 def get_all_brains(catalog):
     # Return a full list, not a generator,
     # because we may delete brains from the catalog while iterating over them.
-    try:
-        # This needs Products.ZCatalog 2.13.30+ or 4.1+.
-        return list(catalog.getAllBrains())
-    except AttributeError:
-        try:
-            # Most other catalogs
-            return list(catalog.unrestrictedSearchResults())
-        except AttributeError:
-            # uid_catalog
-            return list(catalog())
+    return list(catalog.getAllBrains())
 
 
 def uid_getter(item):
@@ -107,7 +96,7 @@ class Cleanup(BrowserView):
                      'permanent, add "?dry_run=false" to the URL.')
             self.newline()
         context = aq_inner(self.context)
-        catalog_ids = ['portal_catalog', 'uid_catalog', 'reference_catalog']
+        catalog_ids = ['portal_catalog']
         for catalog_id in catalog_ids:
             problems = 0
             self.newline()
@@ -119,12 +108,7 @@ class Cleanup(BrowserView):
             problems += self.report(catalog_id)
             problems += self.remove_without_uids(catalog_id)
             problems += self.remove_without_object(catalog_id)
-            if catalog_id == 'reference_catalog':
-                problems += self.check_references()
-            else:
-                # Non unique ids seem persistent in the reference catalog.
-                # Running the code several times keeps creating new uids.
-                problems += self.non_unique_uids(catalog_id)
+            problems += self.non_unique_uids(catalog_id)
             self.msg('{0}: total problems: {1:d}'.format(catalog_id, problems))
 
         self.newline()
@@ -180,11 +164,7 @@ class Cleanup(BrowserView):
         # We need to get the complete list instead of a lazy
         # mapping, otherwise iterating misses half of the brains
         # and we would need to try again.
-        try:
-            brains = list(catalog.unrestrictedSearchResults(UID=None))
-        except AttributeError:
-            # uid_catalog
-            brains = list(catalog(UID=None))
+        brains = list(catalog.unrestrictedSearchResults(UID=None))
         for brain in brains:
             if not self.dry_run:
                 try:
@@ -229,59 +209,6 @@ class Cleanup(BrowserView):
                 '{0}: removed no brains in object check.'.format(catalog_id))
         return sum(status.values())
 
-    def check_references(self, catalog_id='reference_catalog'):
-        """Remove all brains without proper references.
-        """
-        __traceback_info__ = catalog_id
-        context = aq_inner(self.context)
-        catalog = getToolByName(context, catalog_id)
-        status = {}
-        ref_errors = 0
-        brains = get_all_brains(catalog)
-        getters = ('getSourceObject', 'getTargetObject')
-        for brain in brains:
-            ref = self.get_object_or_status(brain)
-            if isinstance(ref, basestring):
-                # We have an error. This means a dry_run is being
-                # done, as otherwise this brain should have been
-                # cleaned up by one of the other methods already.
-                ref_errors += 1
-                continue
-            if ref is None:
-                # No error, but no object either.  This can happen
-                # for references.  Let's accept it.
-                continue
-            for getter in getters:
-                obj = self.get_object_or_status(ref, getter)
-                if not isinstance(obj, basestring):
-                    continue
-                # We have an error.  Remove the reference brain.
-                count = status.get(obj, 0)
-                status[obj] = count + 1
-                if not self.dry_run:
-                    try:
-                        path = brain.getPath()
-                    except (KeyError, AttributeError):
-                        continue
-                    catalog.uncatalog_object(path)
-                # No need for the second getter if the first already
-                # fails.
-                break
-
-        if ref_errors:
-            self.msg(
-                '{0}: problem getting {1:d} references.'
-                .format(catalog_id, ref_errors))
-        for error, value in status.items():
-            self.msg(
-                '{0}: removed {1:d} brains with status {2} for source or '
-                'target object.'.format(catalog_id, value, error))
-        if not status:
-            self.msg(
-                '{0}: removed no brains in reference check.'
-                .format(catalog_id))
-        return sum(status.values()) + ref_errors
-
     def non_unique_uids(self, catalog_id):
         """Report and fix non unique uids.
 
@@ -320,8 +247,7 @@ class Cleanup(BrowserView):
                     obj_errors += 1
                     continue
                 if obj is None:
-                    # No error, but no object either.  This happens in the
-                    # uid_catalog for references.
+                    # No error, but no object either.
                     continue
                 old_uid = getattr(aq_base(obj), UUID_ATTR, None)
                 if old_uid is None:
@@ -346,13 +272,7 @@ class Cleanup(BrowserView):
                     try:
                         obj._register()
                     except AttributeError:
-                        # Might happen for a Reference.
-                        if Reference is not None and isinstance(obj, Reference):
-                            logger.warn('%s: removing reference %s with '
-                                        'duplicate uid %s.', catalog_id,
-                                        safe_path(item), old_uid)
-                            del aq_parent(obj)[obj.getId()]
-                            continue
+                        pass
                     obj._updateCatalog(context)
                     obj.reindexObject(idxs=['UID'])
                     logger.info('{0}: new uid {1} for {2} (was {3}).'.format(
@@ -378,11 +298,8 @@ class Cleanup(BrowserView):
         __traceback_info__ = [brain, getter]
         try:
             brain_id = brain.getPath()
-        except KeyError:
+        except (AttributeError, KeyError):
             return 'notfound'
-        except AttributeError:
-            # Probably not a real brain, but a reference.
-            brain_id = brain.getId()
         else:
             if 'portal_factory' in brain_id.split('/'):
                 return 'factory'
@@ -403,11 +320,6 @@ class Cleanup(BrowserView):
             logger.exception('Cannot handle brain at %s.', brain_id)
             raise
         if obj is None:
-            # This might be a problem, but it also happens when the brain is
-            # for a reference.
-            if ('at_references' in brain_id and
-                    brain_id.endswith('at_references/' + brain.UID)):
-                return
             return 'none'
         if isinstance(obj, BrokenClass):
             logger.warning('Broken %s: %s', brain.portal_type, brain_id)

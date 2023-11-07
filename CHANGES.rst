@@ -5,7 +5,9 @@ Changelog
 1.11.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Removed support for checking the ``reference_catalog`` and ``uid_catalog``.
+  These are Archetypes-only.
+  [maurits]
 
 
 1.11.2 (2021-08-24)

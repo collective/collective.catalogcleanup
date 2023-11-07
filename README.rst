@@ -49,9 +49,6 @@ So what does the catalog cleanup do?
   items are kept.  For other items we accept one object and we give
   the other objects a new UID.
 
-- References between objects that no longer exist or are broken, will
-  be removed.
-
 - A simple report will be printed in the browser.
   It may look like this::
 
