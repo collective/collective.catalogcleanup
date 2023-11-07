@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.11.3 (unreleased)
--------------------
+2.0.0 (unreleased)
+------------------
 
 - Removed support for checking the ``reference_catalog`` and ``uid_catalog``.
   These are Archetypes-only.
