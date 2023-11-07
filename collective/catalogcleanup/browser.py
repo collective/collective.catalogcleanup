@@ -1,6 +1,5 @@
 from Acquisition import aq_base
 from Acquisition import aq_inner
-from Acquisition import aq_parent
 from itertools import groupby
 from OFS.Uninstalled import BrokenClass
 from Products.CMFCore.utils import getToolByName
@@ -315,7 +314,7 @@ class Cleanup(BrowserView):
                 "TypeError, returning notfound for brain at %s.", brain_id, exc_info=1
             )
             return "notfound"
-        except:  # noqa: B901
+        except Exception:
             logger.exception("Cannot handle brain at %s.", brain_id)
             raise
         if obj is None:
