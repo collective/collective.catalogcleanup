@@ -42,8 +42,8 @@ def get_all_brains(catalog):
     return list(catalog.getAllBrains())
 
 
-def uid_getter(item):
-    """Get UID from item (brain).
+def uid_getter(brain):
+    """Get UID from brain.
 
     operator.attrgetter('UID') should be fine,
     but this fails for sorting when there one of the UIDs is None:
@@ -51,7 +51,7 @@ def uid_getter(item):
     '<' not supported between instances of 'NoneType' and 'str'
 
     """
-    return getattr(item, "UID", "") or ""
+    return getattr(brain, "UID", "") or ""
 
 
 class Cleanup(BrowserView):
