@@ -9,6 +9,10 @@ Changelog
   These are Archetypes-only.
   [maurits]
 
+- Drop support for Python 2, Plone 5.1 and earlier.
+  Only Plone 5.2 and 6 are supported, on Python 3.
+  [maurits]
+
 
 1.11.2 (2021-08-24)
 -------------------
