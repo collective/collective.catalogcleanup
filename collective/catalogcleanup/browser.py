@@ -2,6 +2,7 @@ from Acquisition import aq_base
 from Acquisition import aq_inner
 from itertools import groupby
 from OFS.Uninstalled import BrokenClass
+from plone.protect.interfaces import IDisableCSRFProtection
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from zExceptions import NotFound
@@ -18,18 +19,8 @@ except ImportError:
     # Plone 5.2 on Python 3 never has Archetypes.
     UUID_ATTR = "_at_uid"
 
-try:
-    from plone.protect.interfaces import IDisableCSRFProtection
-except ImportError:
-    IDisableCSRFProtection = None
 
 logger = logging.getLogger("collective.catalogcleanup")
-
-try:
-    basestring
-except NameError:
-    # Python 3
-    basestring = (str, bytes)
 
 
 def safe_path(item):
@@ -77,7 +68,7 @@ class Cleanup(BrowserView):
         # values are considered True.
         if dry_run is None:
             dry_run = self.request.get("dry_run")
-        if isinstance(dry_run, basestring):
+        if isinstance(dry_run, str):
             dry_run = dry_run.lower()
             if dry_run == "false":
                 dry_run = False
@@ -184,7 +175,7 @@ class Cleanup(BrowserView):
         brains = get_all_brains(catalog)
         for brain in brains:
             obj = self.get_object_or_status(brain)
-            if not isinstance(obj, basestring):
+            if not isinstance(obj, str):
                 continue
             if not self.dry_run:
                 try:
@@ -239,7 +230,7 @@ class Cleanup(BrowserView):
             )
             for item in items[1:]:
                 obj = self.get_object_or_status(item)
-                if isinstance(obj, basestring):
+                if isinstance(obj, str):
                     # This is an error. This should fix itself when no
                     # dry_run has been selected.
                     obj_errors += 1
