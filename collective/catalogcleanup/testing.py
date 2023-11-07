@@ -1,25 +1,11 @@
-"""Setup testing fixtures.
-
-For Plone 5 we need to install plone.app.contenttypes.
-"""
 from plone.app.testing import FunctionalTesting
+from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PloneSandboxLayer
 from zope.component import getMultiAdapter
 
-import pkg_resources
 import random
 import string
 import transaction
-
-
-try:
-    pkg_resources.get_distribution("plone.app.contenttypes")
-except pkg_resources.DistributionNotFound:
-    from plone.app.testing import PLONE_FIXTURE
-else:
-    from plone.app.contenttypes.testing import (
-        PLONE_APP_CONTENTTYPES_FIXTURE as PLONE_FIXTURE,
-    )
 
 
 class CatalogCleanupLayer(PloneSandboxLayer):

@@ -34,11 +34,11 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "setuptools",
+        "Products.CMFPlone",
     ],
     extras_require={
         "test": [
             "collective.noindexing",
-            "plone.app.robotframework",
             "plone.app.testing",
         ],
     },
