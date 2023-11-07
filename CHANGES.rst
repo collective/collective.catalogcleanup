@@ -5,6 +5,10 @@ Changelog
 2.0.0 (unreleased)
 ------------------
 
+- Fixed setting new uuids for Dexterity content and Discussion Items.
+  This part of version 1.x seems to only have worked for Archetypes.
+  [maurits]
+
 - Removed support for checking the ``reference_catalog`` and ``uid_catalog``.
   These are Archetypes-only.
   [maurits]

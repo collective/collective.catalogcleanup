@@ -1,23 +1,19 @@
-from Acquisition import aq_base
 from Acquisition import aq_inner
 from itertools import groupby
 from OFS.Uninstalled import BrokenClass
 from plone.protect.interfaces import IDisableCSRFProtection
+from plone.uuid.interfaces import ATTRIBUTE_NAME
+from plone.uuid.interfaces import IUUID
+from plone.uuid.interfaces import IUUIDGenerator
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from zExceptions import NotFound
 from ZODB.POSException import ConflictError
+from zope.component import queryUtility
 from zope.interface import alsoProvides
 
 import logging
 import transaction
-
-
-try:
-    from Products.Archetypes.config import UUID_ATTR
-except ImportError:
-    # Plone 5.2 on Python 3 never has Archetypes.
-    UUID_ATTR = "_at_uid"
 
 
 logger = logging.getLogger("collective.catalogcleanup")
@@ -60,6 +56,8 @@ def uid_getter(item):
 
 class Cleanup(BrowserView):
     def __call__(self, dry_run=None):
+        # Avoid csrf protection errors, as we have no form.
+        alsoProvides(self.request, IDisableCSRFProtection)
         self.messages = []
         self.msg("Starting catalog cleanup.")
         # Determine whether this is a dry run or not.  We are very
@@ -107,9 +105,6 @@ class Cleanup(BrowserView):
             # inadvertent changes anyway.
             transaction.abort()
             self.msg("Dry run selected: aborted any transaction changes.")
-        elif IDisableCSRFProtection is not None:
-            # Avoid csrf protection errors, as we have no form.
-            alsoProvides(self.request, IDisableCSRFProtection)
 
         return "\n".join(self.messages)
 
@@ -215,6 +210,12 @@ class Cleanup(BrowserView):
         non_unique = 0
         changed = 0
         obj_errors = 0
+        # Get a uuid generator and try it out.
+        uuid_generator = queryUtility(IUUIDGenerator)
+        try_uuid = uuid_generator() if uuid_generator is not None else None
+        if not try_uuid:
+            self.msg("Could not get a working uuid generator utility.")
+            return
         brains = get_all_brains(catalog)
         brains = sorted(brains, key=uid_getter)
         for uid, group in groupby(brains, uid_getter):
@@ -238,10 +239,10 @@ class Cleanup(BrowserView):
                 if obj is None:
                     # No error, but no object either.
                     continue
-                old_uid = getattr(aq_base(obj), UUID_ATTR, None)
+                old_uid = IUUID(obj, None)
                 if old_uid is None:
-                    # Comments inherit the UID of their parent, at
-                    # least in Plone 3.  This should be fine.
+                    # Comments used to inherit the UID of their parent, at
+                    # least in Plone 3.  A similar situation should be fine.
                     # But a reindex is good, as we may have given the
                     # parent a fresh UID a moment ago.
                     if not self.dry_run:
@@ -256,17 +257,9 @@ class Cleanup(BrowserView):
                     continue
                 # We need a change.
                 changed += 1
-                # Taken from Archetypes.  Might not work for
-                # dexterity.  Might not be needed for dexterity.
-                # Should not be needed for Archetypes either, really.
                 if not self.dry_run:
-                    delattr(aq_base(obj), UUID_ATTR)
-                    # Create a new UID.
-                    try:
-                        obj._register()
-                    except AttributeError:
-                        pass
-                    obj._updateCatalog(context)
+                    uuid = uuid_generator()
+                    setattr(obj, ATTRIBUTE_NAME, uuid)
                     obj.reindexObject(idxs=["UID"])
                     logger.info(
                         "{}: new uid {} for {} (was {}).".format(
