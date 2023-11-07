@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition import aq_parent
@@ -25,7 +24,7 @@ try:
 except ImportError:
     IDisableCSRFProtection = None
 
-logger = logging.getLogger('collective.catalogcleanup')
+logger = logging.getLogger("collective.catalogcleanup")
 
 try:
     basestring
@@ -38,7 +37,7 @@ def safe_path(item):
     try:
         return item.getPath()
     except (KeyError, AttributeError):
-        return 'notfound'
+        return "notfound"
 
 
 def path_len(item):
@@ -70,77 +69,76 @@ def uid_getter(item):
 
 
 class Cleanup(BrowserView):
-
     def __call__(self, dry_run=None):
         self.messages = []
-        self.msg('Starting catalog cleanup.')
+        self.msg("Starting catalog cleanup.")
         # Determine whether this is a dry run or not.  We are very
         # explicit and only accept the boolean value False and the
         # string 'false' (in lower, upper or mixed case).  All other
         # values are considered True.
         if dry_run is None:
-            dry_run = self.request.get('dry_run')
+            dry_run = self.request.get("dry_run")
         if isinstance(dry_run, basestring):
             dry_run = dry_run.lower()
-            if dry_run == 'false':
+            if dry_run == "false":
                 dry_run = False
         if dry_run is False:
             self.dry_run = False
             self.newline()
-            self.msg('NO dry_run SELECTED. CHANGES ARE PERMANENT.')
+            self.msg("NO dry_run SELECTED. CHANGES ARE PERMANENT.")
             self.newline()
         else:
             self.dry_run = True
             self.newline()
-            self.msg('dry_run SELECTED, SO ONLY REPORTING. To make changes '
-                     'permanent, add "?dry_run=false" to the URL.')
+            self.msg(
+                "dry_run SELECTED, SO ONLY REPORTING. To make changes "
+                'permanent, add "?dry_run=false" to the URL.'
+            )
             self.newline()
         context = aq_inner(self.context)
-        catalog_ids = ['portal_catalog']
+        catalog_ids = ["portal_catalog"]
         for catalog_id in catalog_ids:
             problems = 0
             self.newline()
             if getToolByName(context, catalog_id, None) is None:
-                self.msg(
-                    'Ignored non existing catalog {0}.'.format(catalog_id))
+                self.msg(f"Ignored non existing catalog {catalog_id}.")
                 continue
-            self.msg('Handling catalog {0}.'.format(catalog_id))
+            self.msg(f"Handling catalog {catalog_id}.")
             problems += self.report(catalog_id)
             problems += self.remove_without_uids(catalog_id)
             problems += self.remove_without_object(catalog_id)
             problems += self.non_unique_uids(catalog_id)
-            self.msg('{0}: total problems: {1:d}'.format(catalog_id, problems))
+            self.msg(f"{catalog_id}: total problems: {problems:d}")
 
         self.newline()
-        self.msg('Done with catalog cleanup.')
+        self.msg("Done with catalog cleanup.")
         if self.dry_run:
             # We should not have made any changes, but let's back out any
             # inadvertent changes anyway.
             transaction.abort()
-            self.msg('Dry run selected: aborted any transaction changes.')
+            self.msg("Dry run selected: aborted any transaction changes.")
         elif IDisableCSRFProtection is not None:
             # Avoid csrf protection errors, as we have no form.
             alsoProvides(self.request, IDisableCSRFProtection)
 
-        return '\n'.join(self.messages)
+        return "\n".join(self.messages)
 
     def msg(self, msg, **kwargs):
-        level = kwargs.get('level', logging.INFO)
+        level = kwargs.get("level", logging.INFO)
         logger.log(level, msg)
         self.messages.append(msg)
 
     def newline(self):
-        self.messages.append('')
+        self.messages.append("")
 
     def report(self, catalog_id):
-        """Report about this catalog.
-        """
+        """Report about this catalog."""
         __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
         # This uses a special method to get the length:
         size = len(catalog)
-        self.msg('Brains in {0}: {1:d}'.format(catalog_id, size))
+        self.msg(f"Brains in {catalog_id}: {size:d}")
         # Getting all brains from the catalog may give a different
         # result for various reasons: multilingual language filter,
         # publication date in future, catalog not returning any results
@@ -149,14 +147,16 @@ class Cleanup(BrowserView):
         alternative_size = len(get_all_brains(catalog))
         if alternative_size != size:
             self.msg(
-                'Brains in {0} using getAllBrains is different: {1:d}'
-                .format(catalog_id, alternative_size), level=logging.WARN)
+                "Brains in {} using getAllBrains is different: {:d}".format(
+                    catalog_id, alternative_size
+                ),
+                level=logging.WARN,
+            )
             return 1
         return 0
 
     def remove_without_uids(self, catalog_id):
-        """Remove all brains without UID.
-        """
+        """Remove all brains without UID."""
         __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
@@ -173,14 +173,11 @@ class Cleanup(BrowserView):
                     continue
                 catalog.uncatalog_object(path)
             uncatalog += 1
-        self.msg(
-            '{0}: removed {1:d} brains without UID.'
-            .format(catalog_id, uncatalog))
+        self.msg(f"{catalog_id}: removed {uncatalog:d} brains without UID.")
         return uncatalog
 
     def remove_without_object(self, catalog_id):
-        """Remove all brains without object.
-        """
+        """Remove all brains without object."""
         __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
@@ -202,11 +199,12 @@ class Cleanup(BrowserView):
 
         for error, value in status.items():
             self.msg(
-                '{0}: removed {1:d} brains with status {2}.'
-                .format(catalog_id, value, error))
+                "{}: removed {:d} brains with status {}.".format(
+                    catalog_id, value, error
+                )
+            )
         if not status:
-            self.msg(
-                '{0}: removed no brains in object check.'.format(catalog_id))
+            self.msg(f"{catalog_id}: removed no brains in object check.")
         return sum(status.values())
 
     def non_unique_uids(self, catalog_id):
@@ -221,8 +219,8 @@ class Cleanup(BrowserView):
         __traceback_info__ = catalog_id
         context = aq_inner(self.context)
         catalog = getToolByName(context, catalog_id)
-        if 'UID' not in catalog.indexes():
-            self.msg('{0}: no UID index.'.format(catalog_id))
+        if "UID" not in catalog.indexes():
+            self.msg(f"{catalog_id}: no UID index.")
             return
         non_unique = 0
         changed = 0
@@ -234,11 +232,12 @@ class Cleanup(BrowserView):
             if len(items) == 1:
                 continue
             non_unique += 1
-            logger.info('%s: uid %s: %d items.', catalog_id, uid, len(items))
+            logger.info("%s: uid %s: %d items.", catalog_id, uid, len(items))
             # Sort by length of path.
             items = sorted(items, key=path_len)
-            logger.info('%s: uid %s is kept for %s', catalog_id, uid,
-                        safe_path(items[0]))
+            logger.info(
+                "%s: uid %s is kept for %s", catalog_id, uid, safe_path(items[0])
+            )
             for item in items[1:]:
                 obj = self.get_object_or_status(item)
                 if isinstance(obj, basestring):
@@ -256,10 +255,14 @@ class Cleanup(BrowserView):
                     # But a reindex is good, as we may have given the
                     # parent a fresh UID a moment ago.
                     if not self.dry_run:
-                        obj.reindexObject(idxs=['UID'])
+                        obj.reindexObject(idxs=["UID"])
                         new_uid = obj.UID()
-                        logger.info('%s: uid %s is inherited by %s.',
-                                    catalog_id, new_uid, safe_path(item))
+                        logger.info(
+                            "%s: uid %s is inherited by %s.",
+                            catalog_id,
+                            new_uid,
+                            safe_path(item),
+                        )
                     continue
                 # We need a change.
                 changed += 1
@@ -274,35 +277,31 @@ class Cleanup(BrowserView):
                     except AttributeError:
                         pass
                     obj._updateCatalog(context)
-                    obj.reindexObject(idxs=['UID'])
-                    logger.info('{0}: new uid {1} for {2} (was {3}).'.format(
-                        catalog_id, obj.UID(), safe_path(item), old_uid))
+                    obj.reindexObject(idxs=["UID"])
+                    logger.info(
+                        "{}: new uid {} for {} (was {}).".format(
+                            catalog_id, obj.UID(), safe_path(item), old_uid
+                        )
+                    )
 
         if obj_errors:
-            self.msg(
-                '{0}: problem getting {1:d} objects.'
-                .format(catalog_id, obj_errors))
-        self.msg(
-            '{0}: {1:d} non unique uids found.'.format(catalog_id, non_unique))
+            self.msg(f"{catalog_id}: problem getting {obj_errors:d} objects.")
+        self.msg(f"{catalog_id}: {non_unique:d} non unique uids found.")
         if self.dry_run:
-            self.msg(
-                '{0}: {1:d} items need new unique uids.'
-                .format(catalog_id, changed))
+            self.msg(f"{catalog_id}: {changed:d} items need new unique uids.")
         else:
-            self.msg(
-                '{0}: {1:d} items given new unique uids.'
-                .format(catalog_id, changed))
+            self.msg(f"{catalog_id}: {changed:d} items given new unique uids.")
         return obj_errors + changed
 
-    def get_object_or_status(self, brain, getter='getObject'):
+    def get_object_or_status(self, brain, getter="getObject"):
         __traceback_info__ = [brain, getter]
         try:
             brain_id = brain.getPath()
         except (AttributeError, KeyError):
-            return 'notfound'
+            return "notfound"
         else:
-            if 'portal_factory' in brain_id.split('/'):
-                return 'factory'
+            if "portal_factory" in brain_id.split("/"):
+                return "factory"
         __traceback_info__.append(brain_id)
         try:
             # Usually: brain.getObject()
@@ -310,26 +309,28 @@ class Cleanup(BrowserView):
         except (ConflictError, KeyboardInterrupt):
             raise
         except (NotFound, AttributeError, KeyError):
-            return 'notfound'
+            return "notfound"
         except TypeError:
             logger.warning(
-                'TypeError, returning notfound for brain at %s.',
-                brain_id, exc_info=1)
-            return 'notfound'
+                "TypeError, returning notfound for brain at %s.", brain_id, exc_info=1
+            )
+            return "notfound"
         except:  # noqa: B901
-            logger.exception('Cannot handle brain at %s.', brain_id)
+            logger.exception("Cannot handle brain at %s.", brain_id)
             raise
         if obj is None:
-            return 'none'
+            return "none"
         if isinstance(obj, BrokenClass):
-            logger.warning('Broken %s: %s', brain.portal_type, brain_id)
-            return 'broken'
+            logger.warning("Broken %s: %s", brain.portal_type, brain_id)
+            return "broken"
         if brain_id.startswith("/"):
             actual_path = "/".join(obj.getPhysicalPath())
             if brain_id != actual_path:
                 # Likely acquisition:
                 # /Plone/folder/folder has gotten in the catalog,
                 # but really only /Plone/folder exists.
-                logger.warning('Wrong path: getting %s leads to %s', brain_id, actual_path)
-                return 'wrong_path'
+                logger.warning(
+                    "Wrong path: getting %s leads to %s", brain_id, actual_path
+                )
+                return "wrong_path"
         return obj
