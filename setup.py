@@ -33,8 +33,11 @@ setup(
     zip_safe=False,
     python_requires=">=3.8",
     install_requires=[
-        "setuptools",
+        "plone.protect",
+        "plone.uuid",
+        "Products.CMFCore",
         "Products.CMFPlone",
+        "setuptools",
     ],
     extras_require={
         "test": [
