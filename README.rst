@@ -43,11 +43,8 @@ So what does the catalog cleanup do?
 
 - It removes brains of which the object cannot be found.
 
-- It looks for non unique uids.  There can be some legitimate reasons
-  why some brains may have the same UID, for example when they belong
-  to comments: the UID is inherited from the parent object.  Those
-  items are kept.  For other items we accept one object and we give
-  the other objects a new UID.
+- It looks for non unique uids.
+  We accept one object and we give the other objects a new UID.
 
 - A simple report will be printed in the browser.
   It may look like this::

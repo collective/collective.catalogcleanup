@@ -197,9 +197,7 @@ class Cleanup(BrowserView):
 
         A UID that is not unique is wrong.  And the UUIDIndex
         migration that is done when migrating from Plone 3 to Plone 4
-        breaks in that case.  A UID might be inherited from a parent
-        object; in that case the migration will not break, so we won't
-        try to fix it.
+        breaks in that case.
         """
         __traceback_info__ = catalog_id
         context = aq_inner(self.context)
@@ -242,19 +240,16 @@ class Cleanup(BrowserView):
                 old_uid = IUUID(obj, None)
                 if old_uid is None:
                     # Comments used to inherit the UID of their parent, at
-                    # least in Plone 3.  A similar situation should be fine.
-                    # But a reindex is good, as we may have given the
-                    # parent a fresh UID a moment ago.
-                    if not self.dry_run:
-                        obj.reindexObject(idxs=["UID"])
-                        new_uid = obj.UID()
-                        logger.info(
-                            "%s: uid %s is inherited by %s.",
-                            catalog_id,
-                            new_uid,
-                            safe_path(item),
-                        )
-                    continue
+                    # least in Plone 3.  This is no longer the case in Plone 5.2/6.0.
+                    # This may have already changed since 4.1 with the introduction of
+                    # plone.app.discussion.  We used to accept this and do a reindex
+                    # of the UID, as we may have given the parent a fresh UID a moment
+                    # ago.  But now we warn, and create a new uuid.
+                    logger.info(
+                        "%s: %s has no uid of its own. Will give it a fresh one.",
+                        catalog_id,
+                        safe_path(item),
+                    )
                 # We need a change.
                 changed += 1
                 if not self.dry_run:

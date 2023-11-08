@@ -5,6 +5,10 @@ Changelog
 2.0.0 (unreleased)
 ------------------
 
+- No longer accept non-unique inherited UIDs.
+  This was needed for Discussion Items, but not anymore.
+  [maurits]
+
 - Fixed setting new uuids for Dexterity content and Discussion Items.
   This part of version 1.x seems to only have worked for Archetypes.
   [maurits]
