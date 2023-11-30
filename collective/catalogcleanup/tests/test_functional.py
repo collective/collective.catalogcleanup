@@ -1,5 +1,6 @@
-# -*- coding: utf-8 -*-
-from collective.catalogcleanup.testing import CATALOG_CLEANUP_FUNCTIONAL_TESTING  # noqa: E501
+from collective.catalogcleanup.testing import (  # noqa: E501
+    CATALOG_CLEANUP_FUNCTIONAL_TESTING,
+)
 from collective.catalogcleanup.testing import cleanup
 from collective.catalogcleanup.testing import make_test_doc
 from collective.noindexing import patches
@@ -12,15 +13,14 @@ import unittest
 
 
 class TestCatalogCleanup(unittest.TestCase):
-
     layer = CATALOG_CLEANUP_FUNCTIONAL_TESTING
 
     def _makeOne(self):
-        return make_test_doc(self.layer['portal'])
+        return make_test_doc(self.layer["portal"])
 
     def _delete_object_only(self, doc):
         # Delete object without removing it from the catalog.
-        portal = self.layer['portal']
+        portal = self.layer["portal"]
         patches.apply()
         portal._delObject(doc.getId())
         patches.unapply()
@@ -28,9 +28,9 @@ class TestCatalogCleanup(unittest.TestCase):
 
     def testNormalDeletedDocument(self):
         # No tricks here, just testing some assumptions.
-        portal = self.layer['portal']
-        setRoles(portal, TEST_USER_ID, ('Manager',))
-        catalog = getToolByName(portal, 'portal_catalog')
+        portal = self.layer["portal"]
+        setRoles(portal, TEST_USER_ID, ("Manager",))
+        catalog = getToolByName(portal, "portal_catalog")
         base_count = len(catalog.searchResults({}))
         doc = self._makeOne()
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
@@ -41,9 +41,9 @@ class TestCatalogCleanup(unittest.TestCase):
         self.assertEqual(len(catalog.searchResults({})), base_count)
 
     def testDeletedDocumentWithDryRun(self):
-        portal = self.layer['portal']
-        setRoles(portal, TEST_USER_ID, ('Manager',))
-        catalog = getToolByName(portal, 'portal_catalog')
+        portal = self.layer["portal"]
+        setRoles(portal, TEST_USER_ID, ("Manager",))
+        catalog = getToolByName(portal, "portal_catalog")
         base_count = len(catalog.searchResults({}))
         doc = self._makeOne()
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
@@ -63,9 +63,9 @@ class TestCatalogCleanup(unittest.TestCase):
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
 
     def testDeletedDocumentForReal(self):
-        portal = self.layer['portal']
-        setRoles(portal, TEST_USER_ID, ('Manager',))
-        catalog = getToolByName(portal, 'portal_catalog')
+        portal = self.layer["portal"]
+        setRoles(portal, TEST_USER_ID, ("Manager",))
+        catalog = getToolByName(portal, "portal_catalog")
         base_count = len(catalog.searchResults({}))
         doc = self._makeOne()
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
@@ -73,5 +73,5 @@ class TestCatalogCleanup(unittest.TestCase):
         # it is removed:
         self._delete_object_only(doc)
         self.assertEqual(len(catalog.searchResults({})), base_count + 1)
-        cleanup(portal, dry_run='false')
+        cleanup(portal, dry_run="false")
         self.assertEqual(len(catalog.searchResults({})), base_count)

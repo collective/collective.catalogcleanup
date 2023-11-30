@@ -2,10 +2,24 @@ Changelog
 =========
 
 
-1.11.3 (unreleased)
--------------------
+2.0.0 (unreleased)
+------------------
 
-- Nothing changed yet.
+- No longer accept non-unique inherited UIDs.
+  This was needed for Discussion Items, but not anymore.
+  [maurits]
+
+- Fixed setting new uuids for Dexterity content and Discussion Items.
+  This part of version 1.x seems to only have worked for Archetypes.
+  [maurits]
+
+- Removed support for checking the ``reference_catalog`` and ``uid_catalog``.
+  These are Archetypes-only.
+  [maurits]
+
+- Drop support for Python 2, Plone 5.1 and earlier.
+  Only Plone 5.2 and 6 are supported, on Python 3.
+  [maurits]
 
 
 1.11.2 (2021-08-24)
