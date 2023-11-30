@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-2.0.0 (unreleased)
+2.0.0 (2023-11-30)
 ------------------
 
 - No longer accept non-unique inherited UIDs.
